@@ -3,7 +3,9 @@
   <div class="wrapper">
     <a-layout id="components-layout-demo-custom-trigger">
     <a-layout-sider>
-    <div class="logo" />
+    <div class="logo" >
+      <a-avatar size="large" icon="user"/>
+    </div>
     <a-menu  mode="inline" theme="dark">
       <a-sub-menu v-for="item in menuData" :key="item.key">
         <span slot="title">
@@ -14,6 +16,7 @@
       </a-sub-menu>
     </a-menu>
     </a-layout-sider>
+    <headerNav></headerNav>
     </a-layout>
   </div>
 </template>
@@ -21,10 +24,13 @@
 <script>
 //这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
 //例如：import 《组件名称》 from '《组件路径》';
+import headerNav from './Header'
 
 export default {
   //import引入的组件需要注入到对象中才能使用
-  components: {},
+  components: {
+    headerNav
+  },
   data() {
     //这里存放数据
     return {
@@ -80,7 +86,6 @@ export default {
 }
 #components-layout-demo-custom-trigger .logo {
   height: 32px;
-  background: rgba(255,255,255,.2);
   margin: 16px;
 }
 </style>
