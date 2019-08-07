@@ -1,10 +1,10 @@
 <!--  -->
 <template>
   <div class="wrapper">
-    <a-layout>
+    <a-layout id="components-layout-demo-custom-trigger">
     <a-layout-sider>
-
-    <a-menu style="width: 230px;height: 100%" mode="inline" theme="dark">
+    <div class="logo" />
+    <a-menu  mode="inline" theme="dark">
       <a-sub-menu v-for="item in menuData" :key="item.key">
         <span slot="title">
           <a-icon type="mail" />
@@ -75,11 +75,12 @@ export default {
 .wrapper {
   height: 100%;
 }
-.ant-layout-sider {
-  background: #3ba0e9;
-  color: #fff;
-  line-height: 120px;
-  height: 100%
+#components-layout-demo-custom-trigger {
+  height: 100%;
 }
-
+#components-layout-demo-custom-trigger .logo {
+  height: 32px;
+  background: rgba(255,255,255,.2);
+  margin: 16px;
+}
 </style>
