@@ -1,34 +1,61 @@
 <!--  -->
 <template>
   <div class="wrapper">
-    <slider></slider>
+    <a-layout>
+    <a-layout-sider>
+
+    <a-menu style="width: 230px;height: 100%" mode="inline" theme="dark">
+      <a-sub-menu v-for="item in menuData" :key="item.key">
+        <span slot="title">
+          <a-icon type="mail" />
+          <span>{{item.name}}</span>
+        </span>
+        <a-menu-item v-for="menuitem in item.child" :key="menuitem.key">{{menuitem.name}}</a-menu-item>
+      </a-sub-menu>
+    </a-menu>
+    </a-layout-sider>
+    </a-layout>
   </div>
 </template>
 
 <script>
 //这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
 //例如：import 《组件名称》 from '《组件路径》';
-import slider from '../components/Slider'
 
 export default {
   //import引入的组件需要注入到对象中才能使用
-  components: {
-      slider
-  },
+  components: {},
   data() {
     //这里存放数据
     return {
+      menuData: [
+        {
+          name: "用户管理",
+          key: 1
+        },
+        {
+          name: "用户管理",
+          key: 2,
+          child: [{ name: "用户", key: 3 }]
+        },
+        {
+          name: "用户管理",
+          key: 5,
+          child: [{ name: "用户", key: 4 }]
+        }
+      ]
     };
   },
   //监听属性 类似于data概念
   computed: {},
   //监控data中的数据变化
   watch: {
-
+    openKeys() {}
   },
   //方法集合
   methods: {
-
+    handleClick() {},
+    titleClick() {}
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {},
@@ -45,8 +72,14 @@ export default {
 </script>
 <style lang='scss' scoped>
 //@import url(); 引入公共css类
-    .wrapper{
-        width: 100%;
-        height: 100%;
-    }
+.wrapper {
+  height: 100%;
+}
+.ant-layout-sider {
+  background: #3ba0e9;
+  color: #fff;
+  line-height: 120px;
+  height: 100%
+}
+
 </style>
