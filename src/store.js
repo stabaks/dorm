@@ -5,10 +5,12 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-
+    navCollapsed: false
   },
   mutations: {
-
+    switchCollapase (state) {
+      state.navCollapsed = !state.navCollapsed
+    }
   },
   actions: {
 

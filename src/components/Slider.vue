@@ -2,21 +2,29 @@
 <template>
   <div class="wrapper">
     <a-layout id="components-layout-demo-custom-trigger">
-    <a-layout-sider>
-    <div class="logo" >
-      <a-avatar size="large" icon="user"/>
-    </div>
-    <a-menu  mode="inline" theme="dark">
-      <a-sub-menu v-for="item in menuData" :key="item.key">
-        <span slot="title">
-          <a-icon type="mail" />
-          <span>{{item.name}}</span>
-        </span>
-        <a-menu-item v-for="menuitem in item.child" :key="menuitem.key">{{menuitem.name}}</a-menu-item>
-      </a-sub-menu>
-    </a-menu>
-    </a-layout-sider>
-    <headerNav></headerNav>
+      <a-layout-sider :trigger="null" collapsible v-model="this.$store.state.navCollapsed">
+        <a-popover title="用户" placement="rightTop">
+          <template slot="content">
+            <p><a @click="hide">注销</a></p>
+            <p><a @click="hide">切换用户</a></p>
+          </template>
+          
+          <div class="logo">
+            <a-avatar size="large" icon="user" />
+          </div>
+        </a-popover>
+
+        <a-menu mode="inline" theme="dark">
+          <a-sub-menu v-for="item in menuData" :key="item.key">
+            <span slot="title">
+              <a-icon type="mail" />
+              <span>{{item.name}}</span>
+            </span>
+            <a-menu-item v-for="menuitem in item.child" :key="menuitem.key">{{menuitem.name}}</a-menu-item>
+          </a-sub-menu>
+        </a-menu>
+      </a-layout-sider>
+      <headerNav></headerNav>
     </a-layout>
   </div>
 </template>
@@ -24,7 +32,7 @@
 <script>
 //这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
 //例如：import 《组件名称》 from '《组件路径》';
-import headerNav from './Header'
+import headerNav from "./Header";
 
 export default {
   //import引入的组件需要注入到对象中才能使用
@@ -34,6 +42,7 @@ export default {
   data() {
     //这里存放数据
     return {
+      visible: false,
       menuData: [
         {
           name: "用户管理",
@@ -60,8 +69,10 @@ export default {
   },
   //方法集合
   methods: {
-    handleClick() {},
-    titleClick() {}
+    hide() {
+      this.$message.loading('Action in progress..', 2.5 ).then(() => this.$message.success('This is a message of success'));
+
+    }
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {},
@@ -88,4 +99,5 @@ export default {
   height: 32px;
   margin: 16px;
 }
+
 </style>
