@@ -1,37 +1,43 @@
 <!--  -->
 <template>
   <div class="wrapper">
-    <slider></slider>
-    
+    <el-container>
+      <!-- <el-aside style="width: 207px;"> -->
+        <slider :isCollapse = "isCollapse"></slider>
+      <!-- </el-aside> -->
+      <el-container>
+        <el-header>
+          <i :class="this.$store.state.navCollapsed ? 'el-icon-s-unfold' : 'el-icon-s-fold'" @click="()=> this.$store.commit('switchCollapase')"></i>
+        </el-header>
+        <el-main>Main</el-main>
+        <el-footer>Footer</el-footer>
+      </el-container>
+    </el-container>
   </div>
 </template>
 
 <script>
 //这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
 //例如：import 《组件名称》 from '《组件路径》';
-import slider from '../components/Slider'
-
+import slider from "../components/Slider";
 
 export default {
   //import引入的组件需要注入到对象中才能使用
   components: {
-      slider
+    slider
   },
   data() {
     //这里存放数据
     return {
+      isCollapse: false
     };
   },
   //监听属性 类似于data概念
   computed: {},
   //监控data中的数据变化
-  watch: {
-
-  },
+  watch: {},
   //方法集合
-  methods: {
-
-  },
+  methods: {},
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {},
   //生命周期 - 挂载完成（可以访问DOM元素）
@@ -47,8 +53,42 @@ export default {
 </script>
 <style lang='scss' scoped>
 //@import url(); 引入公共css类
-    .wrapper{
-        width: 100%;
-        height: 100%;
+.el-container {
+  height: 100%;
+}
+.wrapper {
+  width: 100%;
+  height: 100%;
+}
+.el-aside {
+  // width: 207px;
+}
+.el-main {
+  background-color: #e9eef3;
+  color: #333;
+  text-align: center;
+  line-height: 160px;
+}
+
+body > .el-container {
+  margin-bottom: 40px;
+}
+.el-footer {
+  background-color: #b3c0d1;
+  color: #333;
+  text-align: center;
+  line-height: 60px;
+}
+.el-header {
+  background-color: #b3c0d1;
+  color: #333;
+  line-height: 60px;
+  i{
+    font-size:25px;
+    color: #e9eef3;
+    &:hover{
+      color: #5cb6ff
     }
+  }
+}
 </style>

@@ -1,37 +1,65 @@
 <!--  -->
 <template>
-  <div class="wrapper">
-    <a-layout id="components-layout-demo-custom-trigger">
-      <a-layout-sider :trigger="null" collapsible v-model="this.$store.state.navCollapsed">
-        <a-popover title="用户" placement="rightTop">
-          <template slot="content">
-            <p><a @click="hide">注销</a></p>
-            <p><a @click="hide">切换用户</a></p>
-          </template>
-          
-          <div class="logo">
-            <a-avatar size="large" icon="user" />
-          </div>
-        </a-popover>
-
-        <a-menu mode="inline" theme="dark">
-          <a-sub-menu v-for="item in menuData" :key="item.key">
-            <span slot="title">
-              <a-icon type="mail" />
-              <span>{{item.name}}</span>
-            </span>
-            <a-menu-item v-for="menuitem in item.child" :key="menuitem.key">{{menuitem.name}}</a-menu-item>
-          </a-sub-menu>
-        </a-menu>
-      </a-layout-sider>
-      <headerNav></headerNav>
-    </a-layout>
+  <div class="sliderWrapper">
+    <!-- <el-radio-group v-model="isCollapse" style="margin-bottom: 20px;">
+      <el-radio-button :label="false">展开</el-radio-button>
+      <el-radio-button :label="true">收起</el-radio-button>
+    </el-radio-group> -->
+    <el-collapse-transition>
+      <div class="avatarWrapper" v-if="!this.$store.state.navCollapsed">
+        <el-avatar :size="50" fit="fill" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"></el-avatar>
+        <div class="infoWrapper">
+          <span class="userName">Yang</span>
+          <span class="userId">123123</span>
+        </div>
+    </div>
+    </el-collapse-transition>
+    
+    <el-menu
+      default-active="1-4-1"
+      class="el-menu-vertical-demo"
+      @open="handleOpen"
+      @close="handleClose"
+      :collapse="this.$store.state.navCollapsed"
+      background-color="#545c64"
+      text-color="#fff"
+      active-text-color="#ffd04b"
+    >
+      <el-submenu index="1">
+        <template slot="title">
+          <i class="el-icon-location"></i>
+          <span slot="title">导航一</span>
+        </template>
+        <el-menu-item-group>
+          <span slot="title">分组一</span>
+          <el-menu-item index="1-1">选项1</el-menu-item>
+          <el-menu-item index="1-2">选项2</el-menu-item>
+        </el-menu-item-group>
+        <el-menu-item-group title="分组2">
+          <el-menu-item index="1-3">选项3</el-menu-item>
+        </el-menu-item-group>
+        <el-submenu index="1-4">
+          <span slot="title">选项4</span>
+          <el-menu-item index="1-4-1">选项1</el-menu-item>
+        </el-submenu>
+      </el-submenu>
+      <el-menu-item index="2">
+        <i class="el-icon-menu"></i>
+        <span slot="title">导航二</span>
+      </el-menu-item>
+      <el-menu-item index="3" disabled>
+        <i class="el-icon-document"></i>
+        <span slot="title">导航三</span>
+      </el-menu-item>
+      <el-menu-item index="4">
+        <i class="el-icon-setting"></i>
+        <span slot="title">导航四</span>
+      </el-menu-item>
+    </el-menu>
   </div>
 </template>
 
 <script>
-//这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
-//例如：import 《组件名称》 from '《组件路径》';
 import headerNav from "./Header";
 
 export default {
@@ -39,39 +67,24 @@ export default {
   components: {
     headerNav
   },
+  props: ['isCollapse'],
   data() {
     //这里存放数据
     return {
-      visible: false,
-      menuData: [
-        {
-          name: "用户管理",
-          key: 1
-        },
-        {
-          name: "用户管理",
-          key: 2,
-          child: [{ name: "用户", key: 3 }]
-        },
-        {
-          name: "用户管理",
-          key: 5,
-          child: [{ name: "用户", key: 4 }]
-        }
-      ]
+      isCollapse: true
     };
   },
   //监听属性 类似于data概念
   computed: {},
   //监控data中的数据变化
-  watch: {
-    openKeys() {}
-  },
+  watch: {},
   //方法集合
   methods: {
-    hide() {
-      this.$message.loading('Action in progress..', 2.5 ).then(() => this.$message.success('This is a message of success'));
-
+    handleOpen(key, keyPath) {
+      console.log(key, keyPath);
+    },
+    handleClose(key, keyPath) {
+      console.log(key, keyPath);
     }
   },
   //生命周期 - 创建完成（可以访问当前this实例）
@@ -88,16 +101,33 @@ export default {
 };
 </script>
 <style lang='scss' scoped>
-//@import url(); 引入公共css类
-.wrapper {
+.sliderWrapper{
+  overflow: hidden;
+  height: 100%;
+  background: #545c64;
+  // width: 207px;
+  .avatarWrapper{
+    background: #545c64;
+    color: rgb(255,208,75);
+    padding: 10px 0px 10px 10px;
+    display: flex;
+    align-items: center;
+    .infoWrapper{
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      height: 70px;
+      width: 146px;
+    }
+  }
+}
+.el-menu-vertical-demo:not(.el-menu--collapse) {
+  width: 210px;
+  min-height: 400px;
+  min-height: 100%
+}
+.el-menu-vertical-demo{
   height: 100%;
 }
-#components-layout-demo-custom-trigger {
-  height: 100%;
-}
-#components-layout-demo-custom-trigger .logo {
-  height: 32px;
-  margin: 16px;
-}
-
 </style>
