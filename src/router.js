@@ -9,8 +9,9 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'login',
-      component: login
+      redirect: {
+        name: 'home'
+    }
     },{
       path: '/home',
       name: 'home',
@@ -20,6 +21,5 @@ export default new Router({
       name: 'login',
       component: login
     }
-    
   ]
 })

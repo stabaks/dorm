@@ -14,17 +14,14 @@
           class="demo-ruleForm"
         >
           <el-form-item label="账号" prop="username">
-            <el-input
-              placeholder="UserName"
-              prefix-icon="el-icon-user"
-              v-model="ruleForm.username"
-            ></el-input>
+            <el-input placeholder="UserName" prefix-icon="el-icon-user" v-model="ruleForm.username"></el-input>
           </el-form-item>
           <el-form-item label="密码" prop="password">
             <el-input
               placeholder="Password"
-              prefix-icon="el-icon-user"
+              prefix-icon="el-icon-lock"
               v-model="ruleForm.password"
+              show-password
             ></el-input>
           </el-form-item>
           <el-form-item>
@@ -55,8 +52,10 @@
 </template>
 
 <script>
-import service from "../common/common";
-import Cookies from 'js-cookie';
+// import service from "../common/common";
+// import Cookies from "js-cookie";
+import {userLogin} from "../common/api";
+// import { get, post } from './http.js'
 export default {
   data() {
     return {
@@ -85,7 +84,7 @@ export default {
     document.onkeyup = function(e) {
       var key = window.event.keyCode;
       if (key == 13) {
-        lett.submitForm('ruleForm');
+        lett.submitForm("ruleForm");
       }
     };
   },
@@ -96,28 +95,25 @@ export default {
   mounted() {},
 
   methods: {
-    login() {},
     submitForm(formName) {
       console.log(this.ruleForm);
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.isBtnLoading = true;
-          const url = "waken/dorm/login";
-          const queryUserForm = {
+          userLogin({
             userName: this.ruleForm.username,
             password: this.ruleForm.password
-          };
-          service.post(url, queryUserForm, res => {
-            if (res.body.code === "1") {
+          }).then(res => {
+            if (res.code === "1") {
               this.$message({
                 message: "Login Success",
                 type: "success"
               });
-              this.goToHome(res.body.data);
+              this.goToHome(res.data);
               this.isBtnLoading = false;
             } else {
               this.$message.error({
-                message: res.body.msg
+                message: res.msg
               });
               this.isBtnLoading = false;
             }
@@ -129,10 +125,8 @@ export default {
       });
     },
     goToHome(resData) {
-      console.log(resData.token);
-      Cookies.set('userToken', resData.token, {expires: 7});
-      Cookies.set('userId', resData.user.userId, {expires: 7});
-      this.$router.push('/home')
+      this.$store.commit("set_token", resData.token);
+      this.$router.push("/home");
     }
   }
 };
@@ -173,9 +167,11 @@ export default {
 @keyframes fade-in {
   0% {
     opacity: 0;
+    transform: translate(30%)
   } /*初始状态 透明度为0*/
   40% {
     opacity: 0;
+    transform: translate(30%)
   } /*过渡状态 透明度为0*/
   100% {
     opacity: 1;

@@ -1,20 +1,6 @@
 <!--  -->
 <template>
   <div class="sliderWrapper">
-    <!-- <el-radio-group v-model="isCollapse" style="margin-bottom: 20px;">
-      <el-radio-button :label="false">展开</el-radio-button>
-      <el-radio-button :label="true">收起</el-radio-button>
-    </el-radio-group> -->
-    <el-collapse-transition>
-      <div class="avatarWrapper" v-if="!this.$store.state.navCollapsed">
-        <el-avatar :size="50" fit="fill" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"></el-avatar>
-        <div class="infoWrapper">
-          <span class="userName">Yang</span>
-          <span class="userId">123123</span>
-        </div>
-    </div>
-    </el-collapse-transition>
-    
     <el-menu
       default-active="1-4-1"
       class="el-menu-vertical-demo"
@@ -24,54 +10,91 @@
       background-color="#545c64"
       text-color="#fff"
       active-text-color="#ffd04b"
+      router
     >
-      <el-submenu index="1">
-        <template slot="title">
-          <i class="el-icon-location"></i>
-          <span slot="title">导航一</span>
-        </template>
-        <el-menu-item-group>
-          <span slot="title">分组一</span>
-          <el-menu-item index="1-1">选项1</el-menu-item>
-          <el-menu-item index="1-2">选项2</el-menu-item>
-        </el-menu-item-group>
-        <el-menu-item-group title="分组2">
-          <el-menu-item index="1-3">选项3</el-menu-item>
-        </el-menu-item-group>
-        <el-submenu index="1-4">
-          <span slot="title">选项4</span>
-          <el-menu-item index="1-4-1">选项1</el-menu-item>
+      <fragment v-for="(item, i) in menuData" :key="i">
+        <el-submenu v-if="item.children.length!=0" :index="item.title">
+          <template slot="title">
+            <i v-if="item.icon" :class="item.icon"></i>
+            <span slot="title">{{item.title}}</span>
+          </template>
+          <el-menu-item
+            v-for="child in item.children"
+            :key="child.title"
+            :index="child.attribute.resourceUrl"
+          >
+            <i :class="child.icon"></i>
+            <span slot="title">{{child.title}}</span>
+          </el-menu-item>
         </el-submenu>
-      </el-submenu>
-      <el-menu-item index="2">
-        <i class="el-icon-menu"></i>
-        <span slot="title">导航二</span>
-      </el-menu-item>
-      <el-menu-item index="3" disabled>
-        <i class="el-icon-document"></i>
-        <span slot="title">导航三</span>
-      </el-menu-item>
-      <el-menu-item index="4">
-        <i class="el-icon-setting"></i>
-        <span slot="title">导航四</span>
-      </el-menu-item>
+        <el-menu-item :index="item.attribute.resourceUrl" v-else>
+          <i :class="item.icon"></i>
+          <span slot="title">{{item.title}}</span>
+        </el-menu-item>
+      </fragment>
     </el-menu>
   </div>
 </template>
 
 <script>
-import headerNav from "./Header";
-
+import Cookies from "js-cookie";
+import { getMenuData } from "../common/api";
 export default {
   //import引入的组件需要注入到对象中才能使用
-  components: {
-    headerNav
-  },
-  props: ['isCollapse'],
+  components: {},
+  props: ["isCollapse"],
   data() {
     //这里存放数据
     return {
-      isCollapse: true
+      menuData: [
+        {
+          id: "e719a109a7014484901f657f7f3a8c3b",
+          parentId: "root",
+          key: "e719a109a7014484901f657f7f3a8c3b",
+          title: "系统管理",
+          icon: "el-icon-location",
+          sort: 0,
+          checked: false,
+          open: false,
+          attribute: {},
+          children: [
+            {
+              id: "e719a109a7014484901f657f7f3a8c3b",
+              parentId: "root",
+              key: "e719a109a7014484901f657f7f3a8c3b",
+              title: "系统管理",
+              icon: "el-icon-location",
+              sort: 0,
+              checked: false,
+              open: false,
+              attribute: {
+                resourceUrl: "/home/user",
+                routeName: "user",
+                component: "@/views/User"
+              },
+              children: [],
+              leaf: false
+            }
+          ],
+          leaf: false
+        },
+        {
+          id: "e719a109a7014484901f657f7f3a8c3b",
+          parentId: "root",
+          key: "e719a109a7014484901f657f7f3a8c3b",
+          title: "系统管理",
+          icon: "el-icon-location",
+          sort: 0,
+          checked: false,
+          open: false,
+          attribute: {
+            resourceUrl: "/sada/fdsg"
+          },
+          children: [],
+          leaf: false
+        }
+      ],
+      asyncRoutes: this.$router.options.routes
     };
   },
   //监听属性 类似于data概念
@@ -85,12 +108,71 @@ export default {
     },
     handleClose(key, keyPath) {
       console.log(key, keyPath);
+    },
+    initMenuData() {
+      getMenuData().then(res => {
+        if (res.data.length !== 0 && res.data) {
+          // this.menuData = [...res.data];
+          const newRoute = this.menusToRoutes(this.menuData);
+          console.log(newRoute);
+          this.$router.beforeEach(async (to, from, next) => {
+            this.$router.addRoutes(newRoute);
+          });
+        }
+      });
+    },
+    menusToRoutes(data) {
+      console.log(data);
+      console.log(this.$router.options.routes);
+      const result = [];
+      const children = [];
+      result.push({
+        path: "/home",
+        component: () => import("../views/Home"),
+        children
+      });
+      data.forEach(item => {
+        this.generateRoutes(children, item);
+      });
+      result.push({ path: "*", redirect: "/login" });
+      return result;
+    },
+    generateRoutes(children, item) {
+      let isExist = false;
+      if (item.attribute.routeName) {
+        this.asyncRoutes.forEach(route => {
+          if (route.name === item.attribute.routeName) {
+            isExist = true;
+          }
+        });
+        if (!isExist) {
+          children.push({
+            path: item.attribute.resourceUrl,
+            name: item.attribute.routeName,
+            component: () => resolve =>
+              require([item.attribute.component], resolve)
+          });
+        }
+      } else if (item.children && item.children.length !== 0) {
+        item.children.forEach(e => {
+          this.generateRoutes(children, e);
+        });
+      }
+    },
+    getViews(path) {
+      return resolve => {
+        require.ensure([], require => {
+          resolve(require("../views/" + path + ".vue"));
+        });
+      };
     }
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {},
   //生命周期 - 挂载完成（可以访问DOM元素）
-  mounted() {},
+  mounted() {
+    this.initMenuData();
+  },
   beforeCreate() {}, //生命周期 - 创建之前
   beforeMount() {}, //生命周期 - 挂载之前
   beforeUpdate() {}, //生命周期 - 更新之前
@@ -101,33 +183,18 @@ export default {
 };
 </script>
 <style lang='scss' scoped>
-.sliderWrapper{
+.sliderWrapper {
   overflow: hidden;
   height: 100%;
   background: #545c64;
-  // width: 207px;
-  .avatarWrapper{
-    background: #545c64;
-    color: rgb(255,208,75);
-    padding: 10px 0px 10px 10px;
-    display: flex;
-    align-items: center;
-    .infoWrapper{
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      align-items: center;
-      height: 70px;
-      width: 146px;
-    }
-  }
+  display: flex;
 }
 .el-menu-vertical-demo:not(.el-menu--collapse) {
   width: 210px;
   min-height: 400px;
-  min-height: 100%
+  min-height: 100%;
 }
-.el-menu-vertical-demo{
+.el-menu-vertical-demo {
   height: 100%;
 }
 </style>

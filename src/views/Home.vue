@@ -3,13 +3,15 @@
   <div class="wrapper">
     <el-container>
       <!-- <el-aside style="width: 207px;"> -->
-        <slider :isCollapse = "isCollapse"></slider>
+      <slider :isCollapse="isCollapse"></slider>
       <!-- </el-aside> -->
       <el-container>
         <el-header>
-          <i :class="this.$store.state.navCollapsed ? 'el-icon-s-unfold' : 'el-icon-s-fold'" @click="()=> this.$store.commit('switchCollapase')"></i>
+          <div class="trigger-wrapper" @click="()=> this.$store.commit('switchCollapase')">
+            <i :class="this.$store.state.navCollapsed ? 'el-icon-s-unfold' : 'el-icon-s-fold'"></i>
+          </div>
         </el-header>
-        <el-main>Main</el-main>
+        <el-main><router-view/></el-main>
         <el-footer>Footer</el-footer>
       </el-container>
     </el-container>
@@ -20,7 +22,8 @@
 //这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
 //例如：import 《组件名称》 from '《组件路径》';
 import slider from "../components/Slider";
-
+import Cookies from "js-cookie";
+import { getMenuData } from "../common/api";
 export default {
   //import引入的组件需要注入到对象中才能使用
   components: {
@@ -41,7 +44,10 @@ export default {
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {},
   //生命周期 - 挂载完成（可以访问DOM元素）
-  mounted() {},
+  mounted() {
+    console.log(Cookies.get("userToken"));
+    console.log(this.$store.state.token);
+  },
   beforeCreate() {}, //生命周期 - 创建之前
   beforeMount() {}, //生命周期 - 挂载之前
   beforeUpdate() {}, //生命周期 - 更新之前
@@ -80,15 +86,28 @@ body > .el-container {
   line-height: 60px;
 }
 .el-header {
-  background-color: #b3c0d1;
+  background: rgb(84,92,100);
   color: #333;
   line-height: 60px;
-  i{
-    font-size:25px;
-    color: #e9eef3;
-    &:hover{
-      color: #5cb6ff
-    }
+  padding: 0 0;
+
+  .trigger-wrapper {
+  width: 68px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  &:hover{
+  background-color: #fff
   }
+  &:hover i{
+      color: #5cb6ff;    
+  }
+  i {
+    font-size: 25px;
+    color: #e9eef3;
+  }
+}
+  
 }
 </style>

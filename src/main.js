@@ -4,11 +4,11 @@ import router from './router'
 import store from './store'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
-import VueResource from 'vue-resource'
+import Fragment from 'vue-fragment'
 Vue.config.productionTip = false
 
+Vue.use(Fragment.Plugin)
 Vue.use(ElementUI);
-Vue.use(VueResource);
 
 new Vue({
   router,
