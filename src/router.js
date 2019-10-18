@@ -1,8 +1,7 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import home from './views/Home'
-import login from './views/Login'
-
+import Vue from 'vue';
+import Router from 'vue-router';
+import home from './views/Home';
+import login from './views/Login';
 Vue.use(Router)
 
 export default new Router({

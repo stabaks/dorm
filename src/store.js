@@ -5,7 +5,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    navCollapsed: false,
+    navCollapsed: true,
     token:''
   },
   mutations: {
@@ -19,7 +19,13 @@ export default new Vuex.Store({
     del_token(state) {
       state.token = ''
       Cookies.set('userToken', '');
-    }
+    },
+    showCollapase (state) {
+      state.navCollapsed = false;
+    },
+    unShowCollapase (state) {
+      state.navCollapsed = true;
+    },
   },
   actions: {
 

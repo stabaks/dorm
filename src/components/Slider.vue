@@ -1,6 +1,6 @@
 <!--  -->
 <template>
-  <div class="sliderWrapper">
+  <div class="sliderWrapper" @mouseenter="()=> this.$store.commit('showCollapase')">
     <el-menu
       default-active="1-4-1"
       class="el-menu-vertical-demo"
@@ -38,63 +38,16 @@
 
 <script>
 import Cookies from "js-cookie";
-import { getMenuData } from "../common/api";
+// import { getMenuData } from "../common/api";
 export default {
   //import引入的组件需要注入到对象中才能使用
   components: {},
-  props: ["isCollapse"],
+  props: ["menuData"],
   data() {
     //这里存放数据
     return {
-      menuData: [
-        {
-          id: "e719a109a7014484901f657f7f3a8c3b",
-          parentId: "root",
-          key: "e719a109a7014484901f657f7f3a8c3b",
-          title: "系统管理",
-          icon: "el-icon-location",
-          sort: 0,
-          checked: false,
-          open: false,
-          attribute: {},
-          children: [
-            {
-              id: "e719a109a7014484901f657f7f3a8c3b",
-              parentId: "root",
-              key: "e719a109a7014484901f657f7f3a8c3b",
-              title: "系统管理",
-              icon: "el-icon-location",
-              sort: 0,
-              checked: false,
-              open: false,
-              attribute: {
-                resourceUrl: "/home/user",
-                routeName: "user",
-                component: "@/views/User"
-              },
-              children: [],
-              leaf: false
-            }
-          ],
-          leaf: false
-        },
-        {
-          id: "e719a109a7014484901f657f7f3a8c3b",
-          parentId: "root",
-          key: "e719a109a7014484901f657f7f3a8c3b",
-          title: "系统管理",
-          icon: "el-icon-location",
-          sort: 0,
-          checked: false,
-          open: false,
-          attribute: {
-            resourceUrl: "/sada/fdsg"
-          },
-          children: [],
-          leaf: false
-        }
-      ],
-      asyncRoutes: this.$router.options.routes
+      // menuData: [],
+      // asyncRoutes: this.$router.options.routes
     };
   },
   //监听属性 类似于data概念
@@ -110,62 +63,63 @@ export default {
       console.log(key, keyPath);
     },
     initMenuData() {
-      getMenuData().then(res => {
-        if (res.data.length !== 0 && res.data) {
-          // this.menuData = [...res.data];
-          const newRoute = this.menusToRoutes(this.menuData);
-          console.log(newRoute);
-          this.$router.beforeEach(async (to, from, next) => {
-            this.$router.addRoutes(newRoute);
-          });
-        }
-      });
+      // this.menuData = menuData;
+      // getMenuData().then(res => {
+      //   if (res.data.length !== 0 && res.data) {
+      //     this.menuData = [...res.data];
+      //     const newRoute = this.menusToRoutes(this.menuData);
+      //     this.$router.options.routes = newRoute;
+      //     this.$router.addRoutes(newRoute);
+      //   }
+      // });
     },
-    menusToRoutes(data) {
-      console.log(data);
-      console.log(this.$router.options.routes);
-      const result = [];
-      const children = [];
-      result.push({
-        path: "/home",
-        component: () => import("../views/Home"),
-        children
-      });
-      data.forEach(item => {
-        this.generateRoutes(children, item);
-      });
-      result.push({ path: "*", redirect: "/login" });
-      return result;
-    },
-    generateRoutes(children, item) {
-      let isExist = false;
-      if (item.attribute.routeName) {
-        this.asyncRoutes.forEach(route => {
-          if (route.name === item.attribute.routeName) {
-            isExist = true;
-          }
-        });
-        if (!isExist) {
-          children.push({
-            path: item.attribute.resourceUrl,
-            name: item.attribute.routeName,
-            component: () => resolve =>
-              require([item.attribute.component], resolve)
-          });
-        }
-      } else if (item.children && item.children.length !== 0) {
-        item.children.forEach(e => {
-          this.generateRoutes(children, e);
-        });
-      }
-    },
-    getViews(path) {
-      return resolve => {
-        require.ensure([], require => {
-          resolve(require("../views/" + path + ".vue"));
-        });
-      };
-    }
+    // menusToRoutes(data) {
+    //   // console.log(data);
+    //   // console.log(this.$router.options.routes);
+    //   const result = [];
+    //   const children = [];
+    //   result.push({
+    //     path: "/",
+    //     redirect: {
+    //       name: "home"
+    //     }
+    //   });
+    //   result.push({
+    //     path: "/home",
+    //     component: () => import("../views/Home"),
+    //     children
+    //   });
+    //   data.forEach(item => {
+    //     this.generateRoutes(children, item);
+    //   });
+    //   result.push({ path: "*", redirect: "/login" });
+    //   return result;
+    // },
+    // generateRoutes(children, item) {
+    //   // debugger;
+    //   let isExist = false;
+    //     this.asyncRoutes.forEach(route => {
+    //       // console.log(route);
+    //       if (route.path === item.attribute.resourceUrl) {
+    //         isExist = true;
+    //       }
+    //     });
+    //     if (!isExist) {
+    //       // 如果在当前路由中没有这个路由
+    //       children.push({
+    //         path: item.attribute.resourceUrl || "",
+    //         name: item.attribute.routeName || "",
+    //         component: resolve =>
+    //           require([`@/views/${item.attribute.component}`], resolve) // 史诗巨坑！！！！！！
+    //       });
+    //     }
+    //   if (item.children && item.children.length !== 0) {
+    //     item.children.forEach(e => {
+    //       this.generateRoutes(children, e);
+    //     });
+    //   }
+    //   // console.log(children);
+    // }
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {},

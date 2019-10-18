@@ -2,9 +2,8 @@
 <template>
   <div class="wrapper">
     <el-container>
-      <!-- <el-aside style="width: 207px;"> -->
-      <slider :isCollapse="isCollapse"></slider>
-      <!-- </el-aside> -->
+      <slider :menuData="menuData" ></slider>
+      <!-- <router-link to="/home/user">TEST</router-link> -->
       <el-container>
         <el-header>
           <div class="trigger-wrapper" @click="()=> this.$store.commit('switchCollapase')">
@@ -24,6 +23,7 @@
 import slider from "../components/Slider";
 import Cookies from "js-cookie";
 import { getMenuData } from "../common/api";
+import { menusToRoutes } from "../common/utils"
 export default {
   //import引入的组件需要注入到对象中才能使用
   components: {
@@ -32,7 +32,9 @@ export default {
   data() {
     //这里存放数据
     return {
-      isCollapse: false
+      isCollapse: false,
+      menuData: [],
+      asyncRoutes: this.$router.options.routes
     };
   },
   //监听属性 类似于data概念
@@ -40,13 +42,25 @@ export default {
   //监控data中的数据变化
   watch: {},
   //方法集合
-  methods: {},
+  methods: {
+    getMenuData() {
+      getMenuData().then(res => {
+        if (res.data.length !== 0 && res.data) {
+          this.menuData = [...res.data];
+          const newRoute = menusToRoutes(this.menuData);
+          this.$router.options.routes = newRoute;
+          this.$router.addRoutes(newRoute);
+        }
+      });
+    },
+  },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {},
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {
-    console.log(Cookies.get("userToken"));
-    console.log(this.$store.state.token);
+    // console.log(Cookies.get("userToken"));
+    // console.log(this.$store.state.token);
+    this.getMenuData();
   },
   beforeCreate() {}, //生命周期 - 创建之前
   beforeMount() {}, //生命周期 - 挂载之前
@@ -86,7 +100,7 @@ body > .el-container {
   line-height: 60px;
 }
 .el-header {
-  background: rgb(84,92,100);
+  background: rgb(255, 255, 255);
   color: #333;
   line-height: 60px;
   padding: 0 0;
