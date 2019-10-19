@@ -2,7 +2,7 @@
 <template>
   <div class="sliderWrapper" @mouseenter="()=> this.$store.commit('showCollapase')">
     <el-menu
-      default-active="1-4-1"
+      :default-active="activeMenuIndex"
       class="el-menu-vertical-demo"
       @open="handleOpen"
       @close="handleClose"
@@ -46,8 +46,7 @@ export default {
   data() {
     //这里存放数据
     return {
-      // menuData: [],
-      // asyncRoutes: this.$router.options.routes
+      activeMenuIndex: this.$route.path
     };
   },
   //监听属性 类似于data概念
@@ -63,63 +62,9 @@ export default {
       console.log(key, keyPath);
     },
     initMenuData() {
-      // this.menuData = menuData;
-      // getMenuData().then(res => {
-      //   if (res.data.length !== 0 && res.data) {
-      //     this.menuData = [...res.data];
-      //     const newRoute = this.menusToRoutes(this.menuData);
-      //     this.$router.options.routes = newRoute;
-      //     this.$router.addRoutes(newRoute);
-      //   }
-      // });
+      
     },
-    // menusToRoutes(data) {
-    //   // console.log(data);
-    //   // console.log(this.$router.options.routes);
-    //   const result = [];
-    //   const children = [];
-    //   result.push({
-    //     path: "/",
-    //     redirect: {
-    //       name: "home"
-    //     }
-    //   });
-    //   result.push({
-    //     path: "/home",
-    //     component: () => import("../views/Home"),
-    //     children
-    //   });
-    //   data.forEach(item => {
-    //     this.generateRoutes(children, item);
-    //   });
-    //   result.push({ path: "*", redirect: "/login" });
-    //   return result;
-    // },
-    // generateRoutes(children, item) {
-    //   // debugger;
-    //   let isExist = false;
-    //     this.asyncRoutes.forEach(route => {
-    //       // console.log(route);
-    //       if (route.path === item.attribute.resourceUrl) {
-    //         isExist = true;
-    //       }
-    //     });
-    //     if (!isExist) {
-    //       // 如果在当前路由中没有这个路由
-    //       children.push({
-    //         path: item.attribute.resourceUrl || "",
-    //         name: item.attribute.routeName || "",
-    //         component: resolve =>
-    //           require([`@/views/${item.attribute.component}`], resolve) // 史诗巨坑！！！！！！
-    //       });
-    //     }
-    //   if (item.children && item.children.length !== 0) {
-    //     item.children.forEach(e => {
-    //       this.generateRoutes(children, e);
-    //     });
-    //   }
-    //   // console.log(children);
-    // }
+    
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {},
