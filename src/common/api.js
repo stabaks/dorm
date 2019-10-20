@@ -8,3 +8,5 @@ const apiUrl = 'http://47.102.210.73:9896'
 export const userLogin = p => post(`${apiUrl}/waken/dorm/login`, p);
 export const getMenuData = () => get(`${apiUrl}/waken/dorm/resources/menu`);
 export const getUserList = p => post(`${apiUrl}/waken/dorm/user/page`, p);
+export const saveUser = p => post(`${apiUrl}/waken/dorm/user/save`, p);
+export const delUser = p => post(`${apiUrl}/waken/dorm/user/delete`, p);

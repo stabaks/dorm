@@ -25,17 +25,8 @@ NProgress.configure({ easing: 'ease', speed: 500, showSpinner: false })
 router.beforeEach((to, from, next) => {
   NProgress.start();
   next();
-  // 这样每次都会添加一次路由   需要改进
-  // getMenuData().then(res => {
-  //   if (res.data.length !== 0 && res.data) {
-  //     const newRoute = menusToRoutes([...res.data]);
-  //     router.options.routes = newRoute;
-  //     router.addRoutes(newRoute);
-  //   }
-  // });
     if (to.path === '/login') {
       next({ path: '/login' })
-      // if current page is home will not trigger   afterEach hook, so manually handle it
     } else {
       getMenuData().then(res => {
         if (res.data.length !== 0 && res.data) {
