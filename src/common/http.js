@@ -9,7 +9,7 @@ import Message from '../../node_modules/element-ui/packages/message/index'
 import Cookies from "js-cookie";
 // 通过axios.defaults.timeout设置默认的请求超时时间。例如超过了10s，就会告知用户当前请求超时，请刷新等。
 axios.defaults.timeout = 10000;
-// axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
+axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
 
 // 请求拦截器
 axios.interceptors.request.use(
@@ -19,6 +19,7 @@ axios.interceptors.request.use(
         // 即使本地存在token，也有可能token是过期的，所以在响应拦截器中要对返回状态进行判断 
         const token = Cookies.get("userToken");
         token && (config.headers.AuthenticationToken = token);
+        config.headers.common['Access-Control-Allow-Origin'] = '*';
         return config;
     },
     error => {

@@ -14,22 +14,21 @@ module.exports = {
     },
     devServer: {
         open: true,
-        host: 'localhost',
-        port: 8080,
+        host: '47.102.210.73',
+        port: 9896,
         https: false,
         hotOnly: false,
-        // proxy: {
-        //      //配置跨域
-        //      '/api': {
-        //          target: 'http://zb.txdou.com', //test
-        //          ws: true,// 是否启用websockets
-        //          changeOrigin: true, //是否開啟代理
-        //          pathRewrite: {
-        //             '^/api': ''
-        //          }
-        //      }
-        
-        //  },
+        proxy: {
+             //配置跨域
+             '/api': {
+                 target: 'http://47.102.210.73:9896', //test
+                 ws: true,// 是否启用websockets
+                 changeOrigin: true, //是否開啟代理
+                 pathRewrite: {
+                    '^/api': ''
+                 }
+             }
+         },
         before: () => {}
     }
 

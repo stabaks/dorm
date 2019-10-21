@@ -22,14 +22,24 @@
       <el-table-column label="修改操作人" prop="lastModifyUserName" width="170"></el-table-column>
       <el-table-column label="备注" prop="memo" width="150"></el-table-column>
       <el-table-column label="角色" prop="memo" width="200">
-        <template>
-          <el-select v-model="value1" multiple placeholder="请选择">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
+        <template slot-scope="scope">
+          <el-select
+            v-model="scope.row.roleIds"
+            multiple
+            placeholder="请选择角色"
+            collapse-tags
+            @change="saveUserRoles(scope.row)"
+            :disabled="scope.row.isSavingRole"
+            v-loading="scope.row.isSavingRole"
+          >
+            <el-option-group :disabled="scope.row.isSavingRole" v-loading="scope.row.isSavingRole">
+              <el-option
+                v-for="item in allRoleList"
+                :key="item.roleId"
+                :label="item.roleName"
+                :value="item.roleId"
+              ></el-option>
+            </el-option-group>
           </el-select>
         </template>
       </el-table-column>
@@ -45,7 +55,11 @@
         </template>
         <template slot-scope="scope">
           <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
-          <el-button size="mini">资源管理</el-button>
+          <el-button
+            size="mini"
+            @click="getResourceData(scope.row)"
+            v-loading="getResourceLoading"
+          >资源管理</el-button>
           <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">Delete</el-button>
         </template>
       </el-table-column>
@@ -96,17 +110,61 @@
         <el-button type="primary" @click="saveUserForm" :loading="isBtnLoading">确 定</el-button>
       </div>
     </el-dialog>
+    <!-- 抽屉 -->
+    <el-drawer
+      title="资源管理"
+      :visible.sync="isShowDrawer"
+      direction="rtl"
+      :before-close="handleCloseDrawer"
+      custom-class="demo-drawer"
+      size="20%"
+    >
+      <div class="demo-drawer__content">
+        <div class="treeWrapper">
+          <el-tree
+            ref="tree"
+            :data="resourceTreeData"
+            @node-click="handleNodeClick"
+            show-checkbox
+            default-expand-all
+            node-key="id"
+            :props="defaultProps"
+            :default-checked-keys="currentUserResources"
+          ></el-tree>
+        </div>
+
+        <div class="demo-drawer__footer">
+          <el-button @click="handleCloseDrawer()" style="width: 50%">取 消</el-button>
+          <el-button
+            type="primary"
+            @click="saveUserResource()"
+            :saveResourceLoading="saveResourceLoading"
+            style="width: 50%"
+          >{{ saveResourceLoading ? '提交中 ...' : '确 定' }}</el-button>
+        </div>
+      </div>
+    </el-drawer>
   </div>
 </template>
 
 <script>
 import { cloneObj } from "../common/utils";
-import { saveUser, delUser, getUserList } from "../common/api";
+import {
+  saveUser,
+  delUser,
+  getUserList,
+  getAllRoles,
+  saveUserRole,
+  getUserResource,
+  saveUserResource
+} from "../common/api";
 import axios from "axios"; // 引入axios
 export default {
   data() {
     return {
+      allRoleList: [],
       tableData: [],
+      isShowDrawer: false,
       search: "",
       listparam: {
         createUserName: "",
@@ -139,31 +197,16 @@ export default {
       userFormVisible: false,
       isNewUser: false,
       isBtnLoading: false,
-      tableLoading: false,
-      options: [
-        {
-          value: "选项1",
-          label: "超级管理员"
-        },
-        {
-          value: "选项2",
-          label: "宿管"
-        },
-        {
-          value: "选项3",
-          label: "蚵仔煎"
-        },
-        {
-          value: "选项4",
-          label: "龙须面"
-        },
-        {
-          value: "选项5",
-          label: "北京烤鸭"
-        }
-      ],
-      value1: [],
-      value2: []
+      tableLoading: false, //表格获取用户List加载状态
+      saveResourceLoading: false, //资源保存加载状态
+      getResourceLoading: false, //资源管理加载状态
+      defaultProps: {
+        children: "children",
+        label: "title"
+      },
+      resourceTreeData: [],
+      currentUserResources: [],
+      currentSaveUserId: null
     };
   },
 
@@ -173,6 +216,7 @@ export default {
 
   mounted() {
     this.getUserTableData();
+    this.getRolesData();
   },
 
   methods: {
@@ -222,9 +266,16 @@ export default {
       this.tableLoading = true;
       getUserList(this.listparam).then(res => {
         if (res.code === "1") {
-          this.tableData = [...res.data.records];
+          if (res.data.records) {
+            this.tableData = [...res.data.records];
+            this.tableData.forEach(user => {
+              user.isSavingRole = false;
+            });
+            this.tableLoading = false;
+          }
+          // this.tableData = [...res.data.records];
           console.log(this.tableData);
-          this.tableLoading = false;
+          // this.tableLoading = false;
         } else {
           this.$message.error({
             message: res.msg
@@ -256,6 +307,100 @@ export default {
       cloneObj(null, this.form);
       this.isNewUser = true;
       this.userFormVisible = true;
+    },
+    getRolesData() {
+      getAllRoles().then(res => {
+        if (res.code === "1") {
+          if (res.data) {
+            this.allRoleList = [...res.data];
+          } else {
+            this.$message.error({
+              message: res.msg
+            });
+          }
+        }
+      });
+    },
+    saveUserRoles(row) {
+      row.isSavingRole = true;
+      const param = {
+        roleIds: row.roleIds,
+        userId: row.userId
+      };
+      saveUserRole(param).then(res => {
+        // debugger
+        if (res.code === "1") {
+          row.isSavingRole = false;
+          this.getUserTableData();
+        } else {
+          row.isSavingRole = false;
+          this.getUserTableData();
+          this.$message.error({
+            message: res.msg
+          });
+        }
+      });
+    },
+    handleCloseDrawer(done) {
+      this.$confirm("确认关闭？")
+        .then(_ => {
+          this.currentUserResources = [];
+          this.isShowDrawer = false;
+          done();
+        })
+        .catch(_ => {});
+    },
+    handleNodeClick(data) {
+      console.log(data);
+    },
+    getResourceData(row) {
+      this.currentSaveUserId = row.userId;
+      this.getResourceLoading = true;
+      getUserResource(row.userId).then(res => {
+        if (res.code === "1") {
+          if (res.data) {
+            this.resourceTreeData = [...res.data];
+            this.reCurrenceResouece(this.resourceTreeData);
+            this.isShowDrawer = true;
+            this.getResourceLoading = false;
+          }
+        }
+      });
+      console.log(this.currentUserResources);
+    },
+    reCurrenceResouece(resourceArr) {
+      if (resourceArr && resourceArr.length !== 0) {
+        resourceArr.forEach(item => {
+          if (item.checked) {
+            this.currentUserResources.push(item.id);
+          }
+          if (item.children && item.children.length !== 0) {
+            this.reCurrenceResouece(item.children);
+          }
+        });
+      }
+    },
+    saveUserResource() {
+      const resourceList = this.$refs.tree.getCheckedNodes();
+      const param = {
+        resourceIds: resourceList,
+        userId: this.currentSaveUserId
+      };
+      saveUserResource(resourceList).then(res => {
+        if (res.code === "1") {
+          this.$message({
+            message: "保存成功！",
+            type: "success"
+          });
+          this.saveResourceLoading = false;
+          this.isShowDrawer = false;
+        } else {
+          this.$message.error({
+            message: res.msg
+          });
+          this.saveResourceLoading = false;
+        }
+      });
     }
   },
   filters: {
@@ -306,6 +451,20 @@ export default {
   &:hover {
     transform: rotate(90deg);
     color: #409eff;
+  }
+}
+.demo-drawer__content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  .treeWrapper {
+    height: 94%;
+  }
+  .demo-drawer__footer {
+    display: flex;
+    height: 6%;
+    min-height: 40px;
   }
 }
 </style>
