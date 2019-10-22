@@ -1,7 +1,7 @@
 /**   
  * api接口统一管理
  */
-import {  post, get } from './http.js'
+import {  post, get, put } from './http.js'
 const apiUrl = 'https://aishu.site'
 // export const postRequest = p => post('api/v1/users/my_address/address_edit_before', p);
 
@@ -15,3 +15,5 @@ export const saveUserResource = p => post(`${apiUrl}/waken/dorm/user/batch/add/r
 export const getMenuData = () => get(`${apiUrl}/waken/dorm/resources/menu`);
 export const getAllRoles = () => get(`${apiUrl}/waken/dorm/roles`);
 export const getUserResource = p => get(`${apiUrl}/waken/dorm/resources/tree/user/${p}`);
+
+export const changePassword = p => put(`${apiUrl}/waken/dorm/user/current/password`, p);

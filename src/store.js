@@ -6,19 +6,23 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     navCollapsed: true,
-    token:''
+    token: ''
   },
   mutations: {
     switchCollapase (state) {
       state.navCollapsed = !state.navCollapsed
     },
-    set_token(state, token) {
-      state.token = token
-      Cookies.set('userToken', token, {expires: 7});
+    set_token(state, userInfo) {
+      state.token = userInfo.token;
+      window.localStorage.setItem('userInfo', JSON.stringify(userInfo.userInfo))
+      Cookies.set('userToken', userInfo.token, {expires: 7});
+      Cookies.set('userName', userInfo.userInfo.userName, {expires: 7});
     },
     del_token(state) {
       state.token = ''
+      window.localStorage.removeItem('userInfo')
       Cookies.set('userToken', '');
+      Cookies.set('userName', null);
     },
     showCollapase (state) {
       state.navCollapsed = false;

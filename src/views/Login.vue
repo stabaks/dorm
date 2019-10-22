@@ -125,7 +125,11 @@ export default {
       });
     },
     goToHome(resData) {
-      this.$store.commit("set_token", resData.token);
+      console.log(resData);resData.token
+      this.$store.commit("set_token", {
+        token: resData.token,
+        userInfo: resData.user
+      });
       this.$router.push("/home");
     }
   }
