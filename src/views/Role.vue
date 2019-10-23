@@ -2,17 +2,8 @@
 <template>
   <div class="tableWrapper">
     <el-table :data="tableData" style="width: 100%" v-loading="tableLoading">
-      <el-table-column label="用户名" prop="name" width="120" fixed>
-        <template slot-scope="scope">
-          <img src="../assets/student.png" alt />
-          {{ scope.row.userName }}
-        </template>
+      <el-table-column label="角色名" prop="roleName" width="120" fixed>
       </el-table-column>
-      <el-table-column label="性别" prop="gender" width="120">
-        <template slot-scope="scope">{{scope.row.gender | gender}}</template>
-      </el-table-column>
-      <el-table-column label="邮箱" prop="email" width="170"></el-table-column>
-      <el-table-column label="电话" prop="mobile" width="120"></el-table-column>
       <el-table-column label="状态" prop="status" width="100">
         <template slot-scope="scope">{{scope.row.status | status}}</template>
       </el-table-column>

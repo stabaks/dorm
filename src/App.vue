@@ -19,6 +19,14 @@
     margin: 0 0 0 0;
     width: 100%;
     height: 100%;
-
   }
+  
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #a1a3a9;
+  border-radius: 3px;
+}
 </style>
