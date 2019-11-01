@@ -2,38 +2,15 @@
 <template>
   <div class="tableWrapper">
     <el-table :data="tableData" style="width: 100%" v-loading="tableLoading">
-      <el-table-column label="角色名" prop="roleName" width="120" fixed>
-      </el-table-column>
+      <el-table-column label="角色名" prop="roleName" width="120" fixed></el-table-column>
       <el-table-column label="状态" prop="status" width="100">
         <template slot-scope="scope">{{scope.row.status | status}}</template>
       </el-table-column>
-      <el-table-column label="创建时间" prop="createTime" width="170"></el-table-column>
-      <el-table-column label="创建操作人" prop="createUserName" width="120"></el-table-column>
-      <el-table-column label="修改时间" prop="lastModifyTime" width="170"></el-table-column>
-      <el-table-column label="修改操作人" prop="lastModifyUserName" width="170"></el-table-column>
-      <el-table-column label="备注" prop="memo" width="150"></el-table-column>
-      <el-table-column label="角色" prop="memo" width="200">
-        <template slot-scope="scope">
-          <el-select
-            v-model="scope.row.roleIds"
-            multiple
-            placeholder="请选择角色"
-            collapse-tags
-            @change="saveUserRoles(scope.row)"
-            :disabled="scope.row.isSavingRole"
-            v-loading="scope.row.isSavingRole"
-          >
-            <el-option-group :disabled="scope.row.isSavingRole" v-loading="scope.row.isSavingRole">
-              <el-option
-                v-for="item in allRoleList"
-                :key="item.roleId"
-                :label="item.roleName"
-                :value="item.roleId"
-              ></el-option>
-            </el-option-group>
-          </el-select>
-        </template>
-      </el-table-column>
+      <el-table-column label="创建时间" prop="createTime"></el-table-column>
+      <el-table-column label="创建操作人" prop="createUserName"></el-table-column>
+      <el-table-column label="修改时间" prop="lastModifyTime"></el-table-column>
+      <el-table-column label="修改操作人" prop="lastModifyUserName"></el-table-column>
+      <el-table-column label="描述" prop="roleDesc"></el-table-column>
       <el-table-column align="right" width="260" fixed="right">
         <template slot="header" slot-scope="scope">
           <el-input
@@ -42,7 +19,7 @@
             placeholder="输入关键字搜索"
             @click="handleEdit(scope.$index, scope.row)"
           />
-          <i class="el-icon-plus add-btn" @click="addUser()"></i>
+          <i class="el-icon-plus add-btn" @click="addRole()"></i>
         </template>
         <template slot-scope="scope">
           <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
@@ -70,35 +47,24 @@
     </div>
 
     <!--  对话框 -->
-    <el-dialog :title="isNewUser === false? '更改用户信息': '新建用户' " :visible.sync="userFormVisible">
-      <el-form :model="form" ref="userForm">
-        <el-form-item label="用户名" label-width="120px" prop="userName">
+    <el-dialog :title="isNewUser === false? '更改角色信息': '新建角色' " :visible.sync="roleFormVisible">
+      <el-form :model="form" ref="roleForm">
+        <el-form-item label="角色名" label-width="120px" prop="roleName">
           <el-input
-            v-model="form.userName"
+            v-model="form.roleName"
             autocomplete="off"
-            placeholder="username"
+            placeholder="rolename"
             maxlength="20"
           ></el-input>
         </el-form-item>
-        <el-form-item label="昵称" label-width="120px" prop="name">
-          <el-input v-model="form.name" autocomplete="off" placeholder="name" maxlength="20"></el-input>
+        <el-form-item label="角色描述" label-width="120px" prop="roleDesc">
+          <el-input v-model="form.roleDesc" autocomplete="off" placeholder="roleDesc" maxlength="11"></el-input>
         </el-form-item>
-        <el-form-item label="手机号" label-width="120px" prop="mobile">
-          <el-input v-model="form.mobile" autocomplete="off" placeholder="mobile" maxlength="11"></el-input>
-        </el-form-item>
-        <el-form-item label="邮箱" label-width="120px" prop="email">
-          <el-input v-model="form.email" autocomplete="off" placeholder="email" maxlength="30"></el-input>
-        </el-form-item>
-        <el-form-item label="性别" label-width="120px" prop="gender">
-          <el-select v-model="form.gender">
-            <el-option label="男" :value="1"></el-option>
-            <el-option label="女" :value="0"></el-option>
-          </el-select>
-        </el-form-item>
+        
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="userFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="saveUserForm" :loading="isBtnLoading">确 定</el-button>
+        <el-button @click="roleFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="saveRoleForm" :loading="isBtnLoading">确 定</el-button>
       </div>
     </el-dialog>
     <!-- 抽屉 -->
@@ -128,7 +94,7 @@
           <el-button @click="handleCloseDrawer()" style="width: 50%">取 消</el-button>
           <el-button
             type="primary"
-            @click="saveUserResource()"
+            @click="saveRoleResource()"
             :loading="saveResourceLoading"
             style="width: 50%"
           >{{ saveResourceLoading ? '提交中 ...' : '确 定' }}</el-button>
@@ -141,13 +107,12 @@
 <script>
 import { cloneObj } from "../common/utils";
 import {
-  saveUser,
+  saveRole,
   delUser,
-  getUserList,
-  getAllRoles,
+  getRoleList,
   saveUserRole,
-  getUserResource,
-  saveUserResource
+  getRoleResource,
+  saveRoleResource
 } from "../common/api";
 import axios from "axios"; // 引入axios
 export default {
@@ -158,34 +123,25 @@ export default {
       isShowDrawer: false,
       search: "",
       listparam: {
+        createTime: "",
         createUserName: "",
-        email: "",
         endTime: "",
-        gender: null,
+        lastModifyTime: "",
         lastModifyUserName: "",
-        mobile: "",
-        name: "",
-        nickName: "",
         pageNum: 1,
         pageSize: 10,
-        password: "",
+        pkRoleId: "",
+        roleDesc: "",
+        roleName: "",
         startTime: "",
-        status: null,
-        userId: "",
-        userName: "",
-        userType: null
+        // status: 0
       },
       form: {
-        email: "",
-        gender: null,
-        mobile: "",
-        name: "",
-        password: "",
-        userName: "",
-        userType: null,
-        userId: ""
+        roleName: "",
+        roleDesc: "",
+        pkRoleId: ""
       },
-      userFormVisible: false,
+      roleFormVisible: false,
       isNewUser: false,
       isBtnLoading: false,
       tableLoading: false, //表格获取用户List加载状态
@@ -196,7 +152,7 @@ export default {
       },
       resourceTreeData: [],
       currentUserResources: [],
-      currentSaveUserId: null
+      currentSaveRoleId: null
     };
   },
 
@@ -205,27 +161,27 @@ export default {
   computed: {},
 
   mounted() {
-    this.getUserTableData();
-    this.getRolesData();
+    this.getRoleTableData();
   },
 
   methods: {
     handleEdit(index, row) {
+      console.log(row);
       // this.form = {...row};
       cloneObj(row, this.form);
       this.isNewUser = false;
-      this.userFormVisible = true;
+      this.roleFormVisible = true;
     },
     handleDelete(index, row) {
       console.log(index, row);
       const telParam = {
-        delIds: [row.userId],
+        delIds: [row.pkRoleId],
         delStatus: 1
       };
-      this.$confirm("确定要删除这个用户吗？")
+      this.$confirm("确定要删除这个角色吗？")
         .then(_ => {
           axios
-            .delete("http://47.102.210.73:9896/waken/dorm/user/delete", {
+            .delete("https://aishu.site/waken/dorm/role/delete", {
               data: telParam
             })
             .then(res => {
@@ -234,8 +190,8 @@ export default {
                   message: "删除成功！",
                   type: "success"
                 });
-
-                this.userFormVisible = false;
+                this.getRoleTableData();
+                this.roleFormVisible = false;
               } else {
                 this.$message.error({
                   message: res.data.msg
@@ -252,14 +208,13 @@ export default {
       console.log(`当前页: ${val}`);
       this.listparam.pageNum = val;
     },
-    getUserTableData() {
+    getRoleTableData() {
       this.tableLoading = true;
-      getUserList(this.listparam).then(res => {
+      getRoleList(this.listparam).then(res => {
         if (res.code === "1") {
           if (res.data.records) {
             this.tableData = [...res.data.records];
             this.tableData.forEach(user => {
-              user.isSavingRole = false;
               user.getResourceLoading = false;
             });
             this.tableLoading = false;
@@ -275,17 +230,17 @@ export default {
         }
       });
     },
-    saveUserForm() {
+    saveRoleForm() {
       this.isBtnLoading = true;
-      saveUser(this.form).then(res => {
+      saveRole(this.form).then(res => {
         if (res.code === "1") {
           this.$message({
             message: "保存成功！",
             type: "success"
           });
           this.isBtnLoading = false;
-          this.userFormVisible = false;
-          this.getUserTableData();
+          this.roleFormVisible = false;
+          this.getRoleTableData();
         } else {
           this.$message.error({
             message: res.msg
@@ -294,43 +249,10 @@ export default {
         }
       });
     },
-    addUser() {
+    addRole() {
       cloneObj(null, this.form);
       this.isNewUser = true;
-      this.userFormVisible = true;
-    },
-    getRolesData() {
-      getAllRoles().then(res => {
-        if (res.code === "1") {
-          if (res.data) {
-            this.allRoleList = [...res.data];
-          } else {
-            this.$message.error({
-              message: res.msg
-            });
-          }
-        }
-      });
-    },
-    saveUserRoles(row) {
-      row.isSavingRole = true;
-      const param = {
-        roleIds: row.roleIds,
-        userId: row.userId
-      };
-      saveUserRole(param).then(res => {
-        // debugger
-        if (res.code === "1") {
-          row.isSavingRole = false;
-          this.getUserTableData();
-        } else {
-          row.isSavingRole = false;
-          this.getUserTableData();
-          this.$message.error({
-            message: res.msg
-          });
-        }
-      });
+      this.roleFormVisible = true;
     },
     handleCloseDrawer(done) {
       this.$confirm("确认关闭？")
@@ -345,10 +267,10 @@ export default {
       console.log(data);
     },
     getResourceData(row) {
-      this.currentSaveUserId = row.userId;
+      this.currentSaveRoleId = row.pkRoleId;
       row.getResourceLoading = true;
-      this.tableData = [...this.tableData];
-      getUserResource(row.userId).then(res => {
+      this.tableData = [...this.tableData]; //更新按钮刷新状态值
+      getRoleResource(row.pkRoleId).then(res => {
         if (res.code === "1") {
           if (res.data) {
             this.resourceTreeData = [...res.data];
@@ -359,8 +281,6 @@ export default {
           }
         }
       });
-      console.log(this.currentUserResources);
-      
     },
     reCurrenceResouece(resourceArr) {
       if (resourceArr && resourceArr.length !== 0) {
@@ -374,14 +294,19 @@ export default {
         });
       }
     },
-    saveUserResource() {
+    saveRoleResource() {
       this.saveResourceLoading = true;
-      const resourceList = this.$refs.tree.getCheckedNodes();
+      const resourceObjList = this.$refs.tree.getCheckedNodes();
+      console.log(resourceObjList);
+      const resourceIdList = [];
+      resourceObjList.forEach(resourceObj => {
+        resourceIdList.push(resourceObj.id);
+      })
       const param = {
-        resourceIds: resourceList,
-        userId: this.currentSaveUserId
+        resourceIds: resourceIdList,
+        roleId: this.currentSaveRoleId
       };
-      saveUserResource(resourceList).then(res => {
+      saveRoleResource(param).then(res => {
         if (res.code === "1") {
           this.$message({
             message: "保存成功！",

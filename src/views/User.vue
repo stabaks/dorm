@@ -385,12 +385,16 @@ export default {
     },
     saveUserResource() {
       this.saveResourceLoading = true;
-      const resourceList = this.$refs.tree.getCheckedNodes();
+      const resourceObjList = this.$refs.tree.getCheckedNodes();
+      const resourceIdList = [];
+      resourceObjList.forEach(resourceObj => {
+        resourceIdList.push(resourceObj.id);
+      })
       const param = {
-        resourceIds: resourceList,
+        resourceIds: resourceIdList,
         userId: this.currentSaveUserId
       };
-      saveUserResource(resourceList).then(res => {
+      saveUserResource(param).then(res => {
         if (res.code === "1") {
           this.$message({
             message: "保存成功！",
