@@ -22,3 +22,5 @@ export const getRoleList = p => post(`${apiUrl}/waken/dorm/role/page`, p);
 export const saveRole = p => post(`${apiUrl}/waken/dorm/role/save`, p);
 export const getRoleResource = p => get(`${apiUrl}/waken/dorm/resources/tree/role/${p}`);
 export const saveRoleResource = p => post(`${apiUrl}/waken/dorm/role/batch/add/resources`, p);
+// 资源管理
+export const getAllResource = p => get(`${apiUrl}/waken/dorm/resources/tree`);

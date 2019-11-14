@@ -22,11 +22,11 @@ export function cloneObj(obj1, obj2) {
       }
     }
   } else {
-      for (let objAtr2 in obj2) {
-          obj2[objAtr2] = null;
-      }
+    for (let objAtr2 in obj2) {
+      obj2[objAtr2] = null;
+    }
   }
-  
+
 }
 // 动态添加路由
 export function menusToRoutes(data) {
@@ -48,25 +48,35 @@ export function menusToRoutes(data) {
   data.forEach(item => {
     generateRoutes(children, item);
   });
-  result.push({ path: "*", redirect: "/login" });
+  result.push({
+    path: "*",
+    redirect: "/login"
+  });
   return result;
 }
+
 function generateRoutes(children, item) {
   // debugger;
   let isExist = false;
-  Router.options.routes.forEach(route => {
-    // console.log(route);
-    if (route.path === item.attribute.resourceUrl) {
-      isExist = true;
-    }
-  });
+  if (!item.attribute.resourceUrl) {
+    isExist = true;
+  } else {
+    // console.log(Router);
+    Router.options.routes.forEach(route => {
+      // debugger
+      // console.log(route);
+      if (route.path === item.attribute.resourceUrl) {
+        isExist = true;
+      }
+    });
+  }
   if (!isExist) {
     // 如果在当前路由中没有这个路由
     children.push({
       path: item.attribute.resourceUrl || "",
       name: item.attribute.routeName || "",
       component: resolve =>
-        require([`@/views/${item.attribute.component}`], resolve) // 史诗巨坑！！！！！！
+        require([`@/views/${item.attribute.component}`], resolve) // 史诗巨坑
     });
   }
   if (item.children && item.children.length !== 0) {

@@ -12,9 +12,7 @@
           <div class="userInfoWrapper">
             <el-dropdown style="height: 100%;" trigger="click" @command="handleCommond">
               <div class="infoCard">
-                <el-avatar
-                  src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-                ></el-avatar>
+                <img src="../assets/avater.gif" class="avadater" />
                 <div class="nameWrapper">
                   <span style="padding-left: 5px;">{{userName}}</span>
                   <div class="statusWrapper">
@@ -108,9 +106,9 @@ export default {
       getMenuData().then(res => {
         if (res.data.length !== 0 && res.data) {
           this.menuData = [...res.data];
-          const newRoute = menusToRoutes(this.menuData);
-          this.$router.options.routes = newRoute;
-          this.$router.addRoutes(newRoute);
+          // const newRoute = menusToRoutes(this.menuData);
+          // this.$router.options.routes = newRoute;
+          // this.$router.addRoutes(newRoute);
         }
       });
     },
@@ -192,9 +190,9 @@ export default {
   width: 100%;
   height: 100%;
 }
-.el-aside {
-  // width: 207px;
-}
+// .el-aside {
+//   // width: 207px;
+// }
 .el-main {
   background-color: #e9eef3;
   color: #333;
@@ -257,6 +255,10 @@ body > .el-container {
             transition: all 0.5s;
           }
         }
+      }
+      .avadater {
+        height: 66%;
+        border-radius: 30px;
       }
       &:hover {
         background: #e6e6e6;

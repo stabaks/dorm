@@ -24,26 +24,31 @@ NProgress.configure({ easing: 'ease', speed: 500, showSpinner: false })
 
 router.beforeEach((to, from, next) => {
   NProgress.start();
-  // store.commit('showLoading');
+  store.commit('showLoading');
   next();
     if (to.path === '/login') {
       next({ path: '/login' })
     } else {
-      getMenuData().then(res => {
-        if (res.data.length !== 0 && res.data) {
-          const newRoute = menusToRoutes([...res.data]);
-          router.options.routes = newRoute;
-          router.addRoutes(newRoute);
-          
-        }
-      })
+      console.log(from);
+      console.log(to);
+      if (from.path === '/' || from.path === '/login') {
+        console.log('Do');
+        
+        getMenuData().then(res => { // 再次请求当前资源加载入菜单
+          if (res.data.length !== 0 && res.data) {
+            const newRoute = menusToRoutes([...res.data]);
+            router.options.routes = newRoute;
+            router.addRoutes(newRoute);
+          }
+        });
+      }
     }
   
 })
 
 router.afterEach(() => {
   NProgress.done()
-  // store.commit('hideLoading');
+  store.commit('hideLoading');
 })
 new Vue({
   router,
