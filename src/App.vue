@@ -1,9 +1,17 @@
 <template>
   <div id="app">
     <router-view/>
+    <loading></loading>
   </div>
 </template>
-
+<script>
+import loading from './common/loading'
+export default {
+  components: {
+    loading
+  }
+}
+</script>
 <style>
   #app{
     width: 100%;

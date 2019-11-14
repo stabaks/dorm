@@ -24,6 +24,7 @@ NProgress.configure({ easing: 'ease', speed: 500, showSpinner: false })
 
 router.beforeEach((to, from, next) => {
   NProgress.start();
+  // store.commit('showLoading');
   next();
     if (to.path === '/login') {
       next({ path: '/login' })
@@ -42,6 +43,7 @@ router.beforeEach((to, from, next) => {
 
 router.afterEach(() => {
   NProgress.done()
+  // store.commit('hideLoading');
 })
 new Vue({
   router,

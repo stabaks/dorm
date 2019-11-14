@@ -27,26 +27,29 @@
                 </div>
               </div>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="0" style="display: flex; align-items: center;">
+                <el-dropdown-item
+                  command="0"
+                  style="display: flex; align-items: center; font-family: 'Helvetica Neue',Helvetica,'PingFang SC','Hiragino Sans GB','Microsoft YaHei','微软雅黑',Arial,sans-serif;"
+                >
                   <img
                     src="../assets/setting.png"
                     style="margin-right: 5px; width:16px; height:16px;"
                   />
-                  <span>Setting</span>
+                  <span style="margin-left: 10px">Setting</span>
                 </el-dropdown-item>
                 <el-dropdown-item command="1" style="display: flex; align-items: center;">
                   <img
                     src="../assets/password.png"
                     style="margin-right: 5px; width:16px; height:16px;"
                   />
-                  <span>Change password</span>
+                  <span style="margin-left: 10px">Change password</span>
                 </el-dropdown-item>
                 <el-dropdown-item command="2" style="display: flex; align-items: center;">
                   <img
                     src="../assets/logout.png"
                     style="margin-right: 5px; width:16px; height:16px;"
                   />
-                  <span>Logout</span>
+                  <span style="margin-left: 10px">Logout</span>
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -58,45 +61,10 @@
         <el-footer>Footer</el-footer>
       </el-container>
     </el-container>
-    <el-dialog title="更改密码" :visible.sync="changePasswordVisible" width="30%">
-      <el-form :model="passwordForm" ref="passwordForm" :rules="newPassRules" inline-message>
-        <el-form-item label="旧密码" label-width="120px" prop="oldPassword">
-          <el-input
-            v-model="passwordForm.oldPassword"
-            autocomplete="off"
-            placeholder="OldPassword"
-            maxlength="18"
-            show-password
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="新密码" label-width="120px" prop="newPassword">
-          <el-input
-            v-model="passwordForm.newPassword"
-            autocomplete="off"
-            placeholder="newPassword"
-            maxlength="18"
-            show-password
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="确认密码" label-width="120px" prop="confirmPassword">
-          <el-input
-            v-model="passwordForm.confirmPassword"
-            autocomplete="off"
-            placeholder="confirmPassword"
-            maxlength="18"
-            show-password
-          ></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="changePasswordVisible = false">取 消</el-button>
-        <el-button
-          type="primary"
-          @click="saveNewPassword('passwordForm')"
-          :loading="isChangePwBtnLoading"
-        >确 定</el-button>
-      </div>
-    </el-dialog>
+    <Changepassword
+      :changePasswordVisible="changePasswordVisible"
+      @changePwDialog="changePwDialog()"
+    ></Changepassword>
   </div>
 </template>
 
@@ -104,35 +72,19 @@
 //这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
 //例如：import 《组件名称》 from '《组件路径》';
 import slider from "../components/Slider";
+import Changepassword from "../components/ChangePassword";
 import Cookies from "js-cookie";
-import { getMenuData, changePassword } from "../common/api";
+import { getMenuData } from "../common/api";
 import { menusToRoutes } from "../common/utils";
 export default {
   //import引入的组件需要注入到对象中才能使用
   components: {
-    slider
+    slider,
+    Changepassword
   },
   data() {
     //这里存放数据
-    var validatePass = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请输入密码"));
-      } else {
-        if (this.passwordForm.confirmPassword !== "") {
-          this.$refs.passwordForm.validateField("checkPass");
-        }
-        callback();
-      }
-    };
-    var validatePass2 = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请再次输入密码"));
-      } else if (value !== this.passwordForm.newPassword) {
-        callback(new Error("两次输入密码不一致!"));
-      } else {
-        callback();
-      }
-    };
+
     return {
       isCollapse: false,
       menuData: [],
@@ -143,18 +95,7 @@ export default {
       redPoint: require("@/assets/redPoint.png"),
       yellowPoint: require("@/assets/yellowPoint.png"),
       isShowStatus: true,
-      changePasswordVisible: false,
-      passwordForm: {
-        oldPassword: "",
-        newPassword: "",
-        confirmPassword: ""
-      },
-      isChangePwBtnLoading: false,
-      newPassRules: {
-        oldPassword: [{ validator: validatePass, trigger: "blur" }],
-        newPassword: [{ validator: validatePass, trigger: "blur" }],
-        confirmPassword: [{ validator: validatePass2, trigger: "blur" }]
-      }
+      changePasswordVisible: false
     };
   },
   //监听属性 类似于data概念
@@ -183,7 +124,7 @@ export default {
       }, 500);
     },
     handleCommond(commond) {
-      console.log(commond);
+      // console.log(commond);
       switch (commond) {
         case "0":
           break;
@@ -219,22 +160,8 @@ export default {
     handleChangePassword() {
       this.changePasswordVisible = true;
     },
-    saveNewPassword(formName) {
-      console.log(this.$refs[formName]);
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          const param = {
-            oldPassword: this.passwordForm.oldPassword,
-            newPassword: this.passwordForm.newPassword
-          }
-          changePassword(param).then(res => {
-            console.log(res);
-          })
-        } else {
-          console.log("error submit!!");
-          return false;
-        }
-      });
+    changePwDialog(value) {
+      this.changePasswordVisible = false;
     }
   },
   //生命周期 - 创建完成（可以访问当前this实例）
@@ -297,8 +224,9 @@ body > .el-container {
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: all 0.5s;
     &:hover {
-      background-color: #e6e6e6;
+      box-shadow: 3px 11px 12px 2px #ccc inset;
     }
     &:hover i {
       color: #5cb6ff;
@@ -306,6 +234,7 @@ body > .el-container {
     i {
       font-size: 25px;
       color: #e9eef3;
+      transition: all 0.5s;
     }
   }
   .userInfoWrapper {
@@ -316,6 +245,8 @@ body > .el-container {
       align-items: center;
       line-height: 1;
       padding-left: 10px;
+      transition: all 0.5s;
+      margin-right: 20px;
       .nameWrapper {
         width: 110px;
         padding: 10px;
@@ -329,6 +260,8 @@ body > .el-container {
       }
       &:hover {
         background: #e6e6e6;
+        box-shadow: 3px 11px 12px 2px #ccc inset;
+        border-radius: 94px;
       }
     }
   }

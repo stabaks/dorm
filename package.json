@@ -16,6 +16,7 @@
     "nprogress": "^0.2.0",
     "qs": "^6.8.0",
     "sass-loader": "^7.1.0",
+    "tslint": "^5.20.0",
     "vue": "^2.6.10",
     "vue-fragment": "^1.5.1",
     "vue-router": "^3.0.3",

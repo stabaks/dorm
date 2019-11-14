@@ -6,7 +6,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     navCollapsed: true,
-    token: ''
+    token: '',
+    isLoadingShow: false
   },
   mutations: {
     switchCollapase (state) {
@@ -30,6 +31,12 @@ export default new Vuex.Store({
     unShowCollapase (state) {
       state.navCollapsed = true;
     },
+    showLoading (state) {
+      state.isLoadingShow = true;
+    },
+    hideLoading (state) {
+      state.isLoadingShow = false;
+    }
   },
   actions: {
 
