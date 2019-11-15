@@ -3,8 +3,14 @@
   <div class="totalBox">
     <div class="box-left">
       <div class="tree-box">
-          <!-- <loader :isShow = "isLoading"></loader> -->
-        <div class="tree-title">资源树</div>
+        <!-- <loader :isShow = "isLoading"></loader> -->
+        <div class="tree-title">
+          <span>资源树</span>
+          <div class="btn-group">
+            <el-link class="el-icon-plus" @click="addRedource()">新增</el-link>
+            <el-link style="color: #F56C6C;" class="el-icon-edit">删除</el-link>
+          </div>
+        </div>
         <el-tree
           :data="treeData"
           :props="defaultProps"
@@ -15,7 +21,16 @@
       </div>
     </div>
     <div class="box-right">
-      <div class="detail-title">资源信息</div>
+      <div class="detail-title">
+        <span>{{isCreate? '创建新资源': '资源信息'}}</span>
+        <div class="btn-group" v-if="isCreate">
+          <div>
+            <el-radio v-model="isParent" :label="true" size="small">在当前层级创建</el-radio>
+            <el-radio v-model="isParent" :label="false" size="small">在子级创建</el-radio>
+          </div>
+          <!-- <el-switch v-model="isParent" active-text="在当前层级创建" inactive-text="在子级创建"></el-switch> -->
+        </div>
+      </div>
       <div class="form-box">
         <el-form
           :model="ruleForm"
@@ -33,57 +48,83 @@
           <el-form-item label="资源组件名称" prop="component">
             <el-input v-model="ruleForm.component"></el-input>
           </el-form-item>
-          <el-form-item label="资源路径" prop="resourceUrl" required>
-            <el-input v-model="ruleForm.component"></el-input>
+          <el-form-item label="资源路径" prop="resourceUrl">
+            <el-input v-model="ruleForm.resourceUrl"></el-input>
           </el-form-item>
-          <el-form-item label="资源图标" prop="resourceIcon" inline>
-            <el-button type="primary" icon="el-icon-edit" circle></el-button>
+          <el-form-item label="资源图标" prop="resourceIcon">
+            <div style="width: 100%; display: flex; ">
+              <div style="width: 50px; text-align: center;">
+                <i :class="ruleForm.resourceIcon"></i>
+              </div>
+              <el-button
+                type="primary"
+                :icon="ruleForm.resourceIcon? 'el-icon-edit' : 'el-icon-plus'"
+                @click="changeIconsVisible = !changeIconsVisible"
+                circle
+              ></el-button>
+            </div>
           </el-form-item>
-          <el-form-item label="资源种类" prop="resourceType" inline>
+          <el-form-item label="资源种类" prop="resourceType">
             <el-radio-group v-model="ruleForm.resourceType" size="medium">
-              <el-radio-button label="菜单" name="0"></el-radio-button>
-              <el-radio-button label="按钮" name="1"></el-radio-button>
+              <el-radio-button label="1">菜单</el-radio-button>
+              <el-radio-button label="2">按钮</el-radio-button>
             </el-radio-group>
           </el-form-item>
           <el-form-item>
             <div style="text-align: center">
-              <el-button type="primary" @click="submitForm('ruleForm')">立即创建</el-button>
+              <el-button
+                type="primary"
+                @click="submitForm('ruleForm')"
+                style="width: 100%"
+                :loading="isSaveBtnLoading"
+              >保存</el-button>
               <!-- <el-button @click="resetForm('ruleForm')">重置</el-button> -->
             </div>
           </el-form-item>
         </el-form>
       </div>
     </div>
-    
+  <icons :changeVisible="changeIconsVisible" @closeDialog="changeIconsDialog()"></icons>
   </div>
 </template>
 
 <script>
 //这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
 //例如：import 《组件名称》 from '《组件路径》';
-import { getAllResource } from "../common/api";
+import { getAllResource, saveResourceInfo } from "../common/api";
 import loader from "../common/inline-loader";
+import { cloneObj } from "../common/utils";
+import icons from "../common/Icons";
 export default {
   //import引入的组件需要注入到对象中才能使用
   components: {
-    loader
+    loader,
+    icons
   },
   data() {
     //这里存放数据
     return {
+      changeIconsVisible: false,
+      isSaveBtnLoading: false,
       isLoading: true,
+      isCreate: false,
+      currentClickResource: null,
+      isParent: false,
+      changeVisible: false,
       treeData: [],
       defaultProps: {
         children: "children",
         label: "title"
       },
       ruleForm: {
+        parentId: "",
+        pkResourceId: "",
         resourceName: "",
         routeName: "",
         component: "",
         resourceUrl: "",
         resourceIcon: "",
-        resourceType: 0
+        resourceType: "菜单"
       },
       rules: {
         resourceName: [
@@ -119,6 +160,10 @@ export default {
   methods: {
     handleNodeClick(data) {
       console.log(data);
+      this.isCreate = false;
+      cloneObj(data.attribute, this.ruleForm);
+      this.currentClickResource = { ...data };
+      // 将数据渲染进表单clg
     },
     initTree() {
       getAllResource().then(res => {
@@ -133,15 +178,37 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          alert("submit!");
+          console.log(this.ruleForm);
+          if (this.ruleForm) {
+            this.isSaveBtnLoading = true;
+            saveResourceInfo(this.ruleForm).then(res => {
+              console.log(res);
+              if (res["code"] === "1") {
+                this.isSaveBtnLoading = false;
+                this.initTree();
+              }
+            });
+          }
         } else {
           console.log("error submit!!");
           return false;
         }
       });
     },
-    resetForm(formName) {
-      this.$refs[formName].resetFields();
+    changeIconsDialog() {
+      this.changeIconsVisible = false;
+    },
+    addRedource() {
+      console.log(this.currentClickResource);
+
+      if (!this.currentClickResource) {
+        this.$message.error({
+          message: "请选择一个资源再进行操作"
+        });
+      } else {
+        this.isCreate = true;
+        cloneObj(null, this.ruleForm);
+      }
     }
   },
   //生命周期 - 创建完成（可以访问当前this实例）
@@ -176,12 +243,24 @@ export default {
     box-shadow: 6px 6px 10px #333333;
     .tree-title {
       width: 100%;
+      position: relative;
+      span {
+        text-align: center;
+      }
+      .btn-group {
+        position: absolute;
+        right: 0;
+        top: 0;
+        a {
+          margin-left: 9px;
+        }
+      }
     }
     &:hover {
       box-shadow: 1px 1px 25px #333333;
     }
     .tree-box {
-        position: relative;
+      position: relative;
     }
   }
   .box-right {
@@ -196,6 +275,12 @@ export default {
     }
     .detail-title {
       width: 100%;
+      position: relative;
+      .btn-group {
+        position: absolute;
+        right: 10px;
+        top: 0;
+      }
     }
     .form-box {
       text-align: left;

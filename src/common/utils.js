@@ -50,7 +50,7 @@ export function menusToRoutes(data) {
   });
   result.push({
     path: "*",
-    redirect: "/login"
+    redirect: "/404"
   });
   return result;
 }

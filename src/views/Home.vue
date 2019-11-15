@@ -54,7 +54,9 @@
           </div>
         </el-header>
         <el-main>
-          <router-view />
+          <transition name="fade">
+            <router-view/>
+          </transition>
         </el-main>
         <el-footer>Footer</el-footer>
       </el-container>
@@ -270,11 +272,16 @@ body > .el-container {
   .status {
     opacity: 0;
   }
+  .Router{
+    position: absolute;
+  }
   /deep/ .el-dropdown-menu {
     .el-dropdown-menu__item {
       display: flex;
       align-items: center;
     }
   }
+
+
 }
 </style>
