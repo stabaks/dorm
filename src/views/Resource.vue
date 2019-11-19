@@ -64,11 +64,12 @@
               ></el-button>
             </div>
           </el-form-item>
-          <el-form-item label="资源种类" prop="resourceType">
-            <el-radio-group v-model="ruleForm.resourceType" size="medium">
+          <el-form-item label="按钮管理" prop="resourceType">
+            <!-- <el-radio-group v-model="ruleForm.resourceType" size="medium">
               <el-radio-button label="1">菜单</el-radio-button>
               <el-radio-button label="2">按钮</el-radio-button>
-            </el-radio-group>
+            </el-radio-group> -->
+            
           </el-form-item>
           <el-form-item>
             <div style="text-align: center">

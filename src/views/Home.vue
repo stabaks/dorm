@@ -55,7 +55,7 @@
         </el-header>
         <el-main>
           <transition name="fade">
-            <router-view/>
+            <router-view />
           </transition>
         </el-main>
         <el-footer>Footer</el-footer>
@@ -74,7 +74,7 @@
 import slider from "../components/Slider";
 import Changepassword from "../components/ChangePassword";
 import Cookies from "js-cookie";
-import { getMenuData } from "../common/api";
+import { getMenuData, userLogout } from "../common/api";
 import { menusToRoutes } from "../common/utils";
 export default {
   //import引入的组件需要注入到对象中才能使用
@@ -145,10 +145,30 @@ export default {
         type: "warning"
       })
         .then(() => {
-          this.$message({
-            type: "success",
-            message: "登出成功!"
-          });
+          const userId = JSON.parse(window.localStorage.getItem("userInfo"))
+            .userId;
+          if (userId) {
+            userLogout(userId).then(res => {
+              if (res["code"] === "1") {
+                this.$message({
+                  type: "success",
+                  message: "登出成功!"
+                });
+                this.$router.replace('login')
+                this.$store.commit('del_token');
+              } else {
+                this.$message({
+                  type: "warning",
+                  message: res["msg"]
+                });
+              }
+            });
+          } else {
+            this.$message({
+              type: "info",
+              message: "未获取到用户信息"
+            });
+          }
         })
         .catch(() => {
           this.$message({
@@ -272,7 +292,7 @@ body > .el-container {
   .status {
     opacity: 0;
   }
-  .Router{
+  .Router {
     position: absolute;
   }
   /deep/ .el-dropdown-menu {
@@ -281,7 +301,5 @@ body > .el-container {
       align-items: center;
     }
   }
-
-
 }
 </style>
