@@ -9,6 +9,7 @@ export const getMenuData = () => get(`${apiUrl}/waken/dorm/resources/menu`);
 export const changePassword = p => put(`${apiUrl}/waken/dorm/user/current/password`, p);
 // 登录
 export const userLogin = p => post(`${apiUrl}/waken/dorm/login`, p);
+export const userLogout = p => get(`${apiUrl}/waken/dorm/logout/${p}`);
 // 用户管理
 export const getUserList = p => post(`${apiUrl}/waken/dorm/user/page`, p);
 export const saveUser = p => post(`${apiUrl}/waken/dorm/user/save`, p);
