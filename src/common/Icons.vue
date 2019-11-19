@@ -25,12 +25,8 @@
         </div>
       </div>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="changeVisible = false">取 消</el-button>
-        <el-button
-          type="primary"
-          @click="saveNewPassword('passwordForm')"
-          :loading="isChangePwBtnLoading"
-        >确 定</el-button>
+        <el-button @click="isShow = false">取 消</el-button>
+        <el-button type="primary" @click="confirmIcon()">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -41,7 +37,6 @@ import { changePassword } from "../common/api";
 export default {
   data() {
     return {
-      isChangePwBtnLoading: false,
       selectedIcon: "",
       isShow: false,
       icons: [
@@ -170,13 +165,24 @@ export default {
 
   methods: {
     closeDialog() {
-      this.$emit("closeDialog", false);
+      this.$emit("closeDialog", this.selectedIcon);
     },
     changeSelect(thisName) {
       if (this.selectedIcon === thisName) {
         this.selectedIcon = "";
       } else {
         this.selectedIcon = thisName;
+      }
+    },
+    confirmIcon() {
+      if (this.selectedIcon) {
+        this.isShow = false;
+        // this.$emit("closeDialog", this.selectedIcon);
+        // this.$emit("newIcon", this.selectedIcon);
+      } else {
+        this.$message.error({
+          message: "请选择一个标签"
+        });
       }
     }
   }

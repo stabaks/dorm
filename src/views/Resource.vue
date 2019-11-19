@@ -8,7 +8,7 @@
           <span>资源树</span>
           <div class="btn-group">
             <el-link class="el-icon-plus" @click="addRedource()">新增</el-link>
-            <el-link style="color: #F56C6C;" class="el-icon-edit">删除</el-link>
+            <el-link style="color: #F56C6C;" class="el-icon-edit" @click="delResource">删除</el-link>
           </div>
         </div>
         <el-tree
@@ -84,14 +84,18 @@
         </el-form>
       </div>
     </div>
-  <icons :changeVisible="changeIconsVisible" @closeDialog="changeIconsDialog()"></icons>
+    <icons :changeVisible="changeIconsVisible" @closeDialog="changeIconsDialog"></icons>
   </div>
 </template>
 
 <script>
 //这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
 //例如：import 《组件名称》 from '《组件路径》';
-import { getAllResource, saveResourceInfo } from "../common/api";
+import {
+  deleteResource,
+  getAllResource,
+  saveResourceInfo
+} from "../common/api";
 import loader from "../common/inline-loader";
 import { cloneObj } from "../common/utils";
 import icons from "../common/Icons";
@@ -158,9 +162,13 @@ export default {
   watch: {},
   //方法集合
   methods: {
+    updateIcon(param) {
+      console.log(param);
+    },
     handleNodeClick(data) {
       console.log(data);
       this.isCreate = false;
+      this.isParent = null;
       cloneObj(data.attribute, this.ruleForm);
       this.currentClickResource = { ...data };
       // 将数据渲染进表单clg
@@ -179,13 +187,29 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           console.log(this.ruleForm);
+          console.log(this.currentClickResource);
+          if (this.isParent !== null) {
+            // 如果有值那就是创建
+            if (this.isParent) {
+              this.ruleForm.parentId = this.currentClickResource.attribute.parentId;
+            } else {
+              this.ruleForm.parentId = this.currentClickResource.attribute.pkResourceId;
+            }
+          }
           if (this.ruleForm) {
             this.isSaveBtnLoading = true;
             saveResourceInfo(this.ruleForm).then(res => {
-              console.log(res);
               if (res["code"] === "1") {
+                this.$message({
+                  message: "创建成功！",
+                  type: "success"
+                });
                 this.isSaveBtnLoading = false;
                 this.initTree();
+              } else {
+                this.$message.error({
+                  message: res["msg"]
+                });
               }
             });
           }
@@ -195,11 +219,16 @@ export default {
         }
       });
     },
-    changeIconsDialog() {
+    changeIconsDialog(newIcon) {
+      // console.log(newIcon);
       this.changeIconsVisible = false;
+      if (newIcon) {
+        this.ruleForm.resourceIcon = newIcon;
+      }
     },
     addRedource() {
-      console.log(this.currentClickResource);
+      this.isParent = false;
+      // console.log(this.currentClickResource);
 
       if (!this.currentClickResource) {
         this.$message.error({
@@ -208,6 +237,33 @@ export default {
       } else {
         this.isCreate = true;
         cloneObj(null, this.ruleForm);
+      }
+    },
+    delResource() {
+      if (this.currentClickResource) {
+        this.$confirm("确定要删除这个资源吗？")
+          .then(_ => {
+            const param = {
+              delIds: [`${this.currentClickResource.attribute.pkResourceId}`],
+              delStatus: 1
+            };
+            console.log(param);
+            deleteResource(param).then(res => {
+              if (res["code"] === "1") {
+                this.$message.success({
+                  message: "删除成功！"
+                });
+                this.initTree();
+              } else {
+                this.$message.error({
+                  message: res.msg
+                });
+              }
+            });
+          })
+          .catch(_ => {});
+      } else {
+        this.$message.error('请选择一条数据再进行操作');
       }
     }
   },

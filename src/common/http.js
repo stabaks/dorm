@@ -150,3 +150,16 @@ export function put(url, params) {
             })
     });
 }
+
+//DELETE请求
+export function $delete (url, params) {
+    return new Promise((resolve, reject) => {
+      axios.delete(url, {
+        data: params
+      }).then(res => {
+        resolve(res.data);
+      }).catch(err => {
+        reject(err.data)
+      })
+    })
+  }
