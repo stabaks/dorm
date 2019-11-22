@@ -60,7 +60,9 @@ export default {
   animation: fade-in; /*动画名称*/
   animation-duration: 1.5s; /*动画持续时间*/
   -webkit-animation: fade-in 1.5s; /*针对webkit内核*/
-  color: #409EFF;
+  color: #409eff;
+  box-shadow: 2px 22px 21px 2px #000;
+  transition: all 2.5s;
 }
 .tab-wrapper /deep/ .el-tabs__header {
   margin: 0;
@@ -69,7 +71,7 @@ export default {
   animation: fade-in; /*动画名称*/
   animation-duration: 1s; /*动画持续时间*/
   -webkit-animation: fade-in 1s; /*针对webkit内核*/
-  color:  #b7b7b7;
+  color: #b7b7b7;
 }
 .tab-wrapper /deep/ .el-tabs__nav {
   margin-left: 40px;
@@ -81,11 +83,11 @@ export default {
 @keyframes fade-in {
   0% {
     opacity: 0;
-    transform: translate(30%);
+    transform: translate(700px);
   } /*初始状态 透明度为0*/
   40% {
     opacity: 0;
-    transform: translate(30%);
+    transform: translate(450px);
   } /*过渡状态 透明度为0*/
   100% {
     opacity: 1;
