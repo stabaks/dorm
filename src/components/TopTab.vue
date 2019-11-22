@@ -60,6 +60,7 @@ export default {
   animation: fade-in; /*动画名称*/
   animation-duration: 1.5s; /*动画持续时间*/
   -webkit-animation: fade-in 1.5s; /*针对webkit内核*/
+  color: #409EFF;
 }
 .tab-wrapper /deep/ .el-tabs__header {
   margin: 0;
@@ -68,6 +69,7 @@ export default {
   animation: fade-in; /*动画名称*/
   animation-duration: 1s; /*动画持续时间*/
   -webkit-animation: fade-in 1s; /*针对webkit内核*/
+  color:  #b7b7b7;
 }
 .tab-wrapper /deep/ .el-tabs__nav {
   margin-left: 40px;
