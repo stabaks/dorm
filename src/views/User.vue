@@ -446,7 +446,7 @@ export default {
   transition: all 0.5s;
   box-shadow: 6px 6px 10px #333333;
   &:hover{
-    box-shadow: 1px 1px 25px #333333;
+    box-shadow: 1px 42px 25px #333333;
   }
 }
 .pagination {

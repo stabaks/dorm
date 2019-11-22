@@ -1,7 +1,7 @@
 <!--  -->
 <template>
   <div class="totalBox">
-    <div class="box-left">
+    <div class="box-left" :class="{'hasResource': currentClickResource}">
       <div class="tree-box">
         <!-- <loader :isShow = "isLoading"></loader> -->
         <div class="tree-title">
@@ -20,7 +20,7 @@
         ></el-tree>
       </div>
     </div>
-    <div class="box-right">
+    <div class="box-right" v-if="currentClickResource">
       <div class="detail-title">
         <span>{{isCreate? '创建新资源': '资源信息'}}</span>
         <div class="btn-group" v-if="isCreate">
@@ -68,8 +68,24 @@
             <!-- <el-radio-group v-model="ruleForm.resourceType" size="medium">
               <el-radio-button label="1">菜单</el-radio-button>
               <el-radio-button label="2">按钮</el-radio-button>
-            </el-radio-group> -->
-            
+            </el-radio-group>-->
+            <el-tag
+              :key="tag.resourceName"
+              v-for="tag in dynamicTags"
+              closable
+              :disable-transitions="false"
+              @close="handleClose(tag)"
+            >{{tag.resourceName}}</el-tag>
+            <el-input
+              class="input-new-tag"
+              v-if="inputVisible"
+              v-model="inputValue"
+              ref="saveTagInput"
+              size="small"
+              @keyup.enter.native="handleInputConfirm"
+              @blur="handleInputConfirm"
+            ></el-input>
+            <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
           </el-form-item>
           <el-form-item>
             <div style="text-align: center">
@@ -95,7 +111,8 @@
 import {
   deleteResource,
   getAllResource,
-  saveResourceInfo
+  saveResourceInfo,
+  getBtnsResource
 } from "../common/api";
 import loader from "../common/inline-loader";
 import { cloneObj } from "../common/utils";
@@ -147,14 +164,17 @@ export default {
         resourceUrl: [
           { required: true, message: "请输入资源路径", trigger: "blur" },
           { min: 1, max: 50, message: "长度在 1 到 50 个字符", trigger: "blur" }
-        ],
+        ]
         // resourceIcon: [
         //   { required: true, message: "请选择资源图标", trigger: "blur" }
         // ],
-        resourceType: [
-          { required: true, message: "请选择资源类型", trigger: "blur" }
-        ]
-      }
+        // resourceType: [
+        //   { required: true, message: "请选择资源类型", trigger: "blur" }
+        // ]
+      },
+      dynamicTags: [],
+      inputVisible: false,
+      inputValue: ""
     };
   },
   //监听属性 类似于data概念
@@ -163,16 +183,71 @@ export default {
   watch: {},
   //方法集合
   methods: {
+    handleClose(tag) {
+      console.log(tag);
+      if (tag.pkResourceId) {
+        this.$confirm("确定要删除这个资源吗？")
+          .then(_ => {
+            this.doDelResource(tag.pkResourceId);
+          })
+          .catch(_ => {});
+      } else {
+        this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
+      }
+    },
+
+    showInput() {
+      this.inputVisible = true;
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus();
+      });
+    },
+
+    handleInputConfirm() {
+      let inputValue = this.inputValue;
+      let isExist = false;
+      this.dynamicTags.forEach(tag => {
+        if (tag.resourceName === inputValue) {
+          isExist = true;
+        }
+      });
+      if (!isExist) {
+        if (inputValue) {
+          const newTagObj = {
+            resourceName: inputValue,
+            perms: "test"
+          };
+          this.dynamicTags.push(newTagObj);
+        }
+        this.inputVisible = false;
+        this.inputValue = "";
+      } else {
+        this.$message.error({
+          message: "按钮资源名称不能相同"
+        });
+      }
+    },
     updateIcon(param) {
       console.log(param);
     },
     handleNodeClick(data) {
       console.log(data);
-      this.isCreate = false;
-      this.isParent = null;
-      cloneObj(data.attribute, this.ruleForm);
-      this.currentClickResource = { ...data };
+      this.dynamicTags = []; // 重置按钮标签数组
+      if (this.currentClickResource === data) {
+        this.currentClickResource = null;
+      } else {
+        this.isCreate = false;
+        this.isParent = null;
+        cloneObj(data.attribute, this.ruleForm);
+        this.currentClickResource = data;
+      }
       // 将数据渲染进表单clg
+      getBtnsResource(data.attribute.pkResourceId).then(res => {
+        console.log(res);
+        if (res["code"] === "1") {
+          this.dynamicTags = [...res.data];
+        }
+      });
     },
     initTree() {
       getAllResource().then(res => {
@@ -196,6 +271,9 @@ export default {
             } else {
               this.ruleForm.parentId = this.currentClickResource.attribute.pkResourceId;
             }
+          }
+          if (this.dynamicTags && this.dynamicTags.length !== 0) {
+            this.ruleForm.buttonResourcesList = [...this.dynamicTags];
           }
           if (this.ruleForm) {
             this.isSaveBtnLoading = true;
@@ -240,31 +318,36 @@ export default {
         cloneObj(null, this.ruleForm);
       }
     },
+    doDelResource(resourceId) {
+      const param = {
+        delIds: [`${resourceId}`],
+        delStatus: 1
+      };
+      console.log(param);
+      deleteResource(param).then(res => {
+        if (res["code"] === "1") {
+          this.$message.success({
+            message: "删除成功！"
+          });
+          this.initTree();
+        } else {
+          this.$message.error({
+            message: res.msg
+          });
+        }
+      });
+    },
     delResource() {
       if (this.currentClickResource) {
         this.$confirm("确定要删除这个资源吗？")
           .then(_ => {
-            const param = {
-              delIds: [`${this.currentClickResource.attribute.pkResourceId}`],
-              delStatus: 1
-            };
-            console.log(param);
-            deleteResource(param).then(res => {
-              if (res["code"] === "1") {
-                this.$message.success({
-                  message: "删除成功！"
-                });
-                this.initTree();
-              } else {
-                this.$message.error({
-                  message: res.msg
-                });
-              }
-            });
+            this.doDelResource(
+              this.currentClickResource.attribute.pkResourceId
+            );
           })
           .catch(_ => {});
       } else {
-        this.$message.error('请选择一条数据再进行操作');
+        this.$message.error("请选择一条数据再进行操作");
       }
     }
   },
@@ -291,13 +374,14 @@ export default {
   height: 100%;
   //   padding: 14px 14px 20px 14px;
   .box-left {
-    margin: 14px;
+    margin: 0 14px 14px 14px;
     padding: 14px;
-    width: 30%;
+    width: 100%;
     background: white;
     border-radius: 17px;
     transition: all 0.5s;
     box-shadow: 6px 6px 10px #333333;
+    transition: all 0.75s;
     .tree-title {
       width: 100%;
       position: relative;
@@ -314,11 +398,14 @@ export default {
       }
     }
     &:hover {
-      box-shadow: 1px 1px 25px #333333;
+      box-shadow: 1px 42px 25px #333333;
     }
     .tree-box {
       position: relative;
     }
+  }
+  .hasResource {
+    width: 30%;
   }
   .box-right {
     margin: 14px;
@@ -359,5 +446,20 @@ export default {
     background-color: #409eff;
     color: #fff;
   }
+}
+.el-tag + .el-tag {
+  margin-left: 10px;
+}
+.input-new-tag {
+  width: 90px;
+  margin-left: 10px;
+  vertical-align: bottom;
+}
+.button-new-tag {
+  margin-left: 10px;
+  height: 32px;
+  line-height: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 </style>

@@ -30,11 +30,9 @@ router.beforeEach((to, from, next) => {
     if (to.path === '/login') {
       next({ path: '/login' })
     } else {
-      console.log(from);
-      console.log(to);
+      store.commit("routeItemToCardList", to);
+      store.commit("getCurrentCard");
       if (from.path === '/' || from.path === '/login') {
-        console.log('Do');
-        
         getMenuData().then(res => { // 再次请求当前资源加载入菜单
           if (res.data.length !== 0 && res.data) {
             const newRoute = menusToRoutes([...res.data]);
@@ -43,6 +41,7 @@ router.beforeEach((to, from, next) => {
           }
         });
       }
+      
     }
   
 })

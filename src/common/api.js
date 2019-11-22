@@ -27,3 +27,4 @@ export const saveRoleResource = p => post(`${apiUrl}/waken/dorm/role/batch/add/r
 export const getAllResource = () => get(`${apiUrl}/waken/dorm/resources/tree`);
 export const saveResourceInfo = p => post(`${apiUrl}/waken/dorm/resources/save`, p);
 export const deleteResource = p => $delete(`${apiUrl}/waken/dorm/resources/delete`, p);
+export const getBtnsResource = p => get(`${apiUrl}/waken/dorm/buttons/${p}`);

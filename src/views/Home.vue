@@ -54,11 +54,14 @@
           </div>
         </el-header>
         <el-main>
-          <transition name="fade">
+          <tab></tab>
+          <transition name="fade" mode="out-in">
             <router-view />
           </transition>
         </el-main>
-        <el-footer>Footer</el-footer>
+        <el-footer>
+          <p>Created By lly</p>
+        </el-footer>
       </el-container>
     </el-container>
     <Changepassword
@@ -76,11 +79,13 @@ import Changepassword from "../components/ChangePassword";
 import Cookies from "js-cookie";
 import { getMenuData, userLogout } from "../common/api";
 import { menusToRoutes } from "../common/utils";
+import tab from "../components/TopTab";
 export default {
   //import引入的组件需要注入到对象中才能使用
   components: {
     slider,
-    Changepassword
+    Changepassword,
+    tab
   },
   data() {
     //这里存放数据
@@ -154,8 +159,8 @@ export default {
                   type: "success",
                   message: "登出成功!"
                 });
-                this.$router.replace('login')
-                this.$store.commit('del_token');
+                this.$router.replace("login");
+                this.$store.commit("del_token");
               } else {
                 this.$message({
                   type: "warning",
@@ -199,7 +204,9 @@ export default {
   beforeUpdate() {}, //生命周期 - 更新之前
   updated() {}, //生命周期 - 更新之后
   beforeDestroy() {}, //生命周期 - 销毁之前
-  destroyed() {}, //生命周期 - 销毁完成
+  destroyed() {
+    this.$store.commit("resetCardList");
+  }, //生命周期 - 销毁完成
   activated() {} //如果页面有keep-alive缓存功能，这个函数会触发
 };
 </script>
@@ -226,7 +233,7 @@ body > .el-container {
   margin-bottom: 40px;
 }
 .el-footer {
-  background-color: #b3c0d1;
+  background: #e9eef3;
   color: #333;
   text-align: center;
   line-height: 60px;

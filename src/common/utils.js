@@ -28,6 +28,7 @@ export function cloneObj(obj1, obj2) {
   }
 
 }
+
 // 动态添加路由
 export function menusToRoutes(data) {
   // console.log(data);
