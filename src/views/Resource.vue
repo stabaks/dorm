@@ -76,7 +76,7 @@
               :disable-transitions="false"
               @close="handleClose(tag)"
             >{{tag.resourceName}}</el-tag>
-            <el-input
+            <!-- <el-input
               class="input-new-tag"
               v-if="inputVisible"
               v-model="inputValue"
@@ -85,7 +85,25 @@
               @keyup.enter.native="handleInputConfirm"
               @blur="handleInputConfirm"
             ></el-input>
-            <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>
+            <el-button v-else class="button-new-tag" size="small" @click="showInput">+ New Tag</el-button>-->
+            <el-popover placement="right" v-model="inputVisible">
+              <el-form :label-position="'right'" :model="formInline" class="demo-form-inline">
+                <el-form-item label="按钮名称" style="display: flex;justify-content: flex-end">
+                  <el-input v-model="formInline.resourceName" placeholder="按钮名称"></el-input>
+                </el-form-item>
+                <el-form-item label="权限" style="display: flex; justify-content: flex-end">
+                  <el-input v-model="formInline.perms" placeholder="按钮权限"></el-input>
+                </el-form-item>
+                <el-form-item>
+                  <!-- <el-button type="primary" size="mini" @click="visible = false">确定</el-button> -->
+                </el-form-item>
+              </el-form>
+              <div style="text-align: right; margin: 0">
+                <el-button size="mini" type="text" @click="inputVisible = false">取消</el-button>
+                <el-button type="primary" size="mini" @click="handleInputConfirm">确定</el-button>
+              </div>
+              <el-button slot="reference" class="button-new-tag">增加按钮资源</el-button>
+            </el-popover>
           </el-form-item>
           <el-form-item>
             <div style="text-align: center">
@@ -126,6 +144,10 @@ export default {
   data() {
     //这里存放数据
     return {
+      formInline: {
+        resourceName: "",
+        perms: ""
+      },
       changeIconsVisible: false,
       isSaveBtnLoading: false,
       isLoading: true,
@@ -146,7 +168,7 @@ export default {
         component: "",
         resourceUrl: "",
         resourceIcon: "",
-        resourceType: "菜单"
+        resourceType: 0
       },
       rules: {
         resourceName: [
@@ -173,8 +195,7 @@ export default {
         // ]
       },
       dynamicTags: [],
-      inputVisible: false,
-      inputValue: ""
+      inputVisible: false
     };
   },
   //监听属性 类似于data概念
@@ -196,31 +217,29 @@ export default {
       }
     },
 
-    showInput() {
-      this.inputVisible = true;
-      this.$nextTick(_ => {
-        this.$refs.saveTagInput.$refs.input.focus();
-      });
-    },
-
     handleInputConfirm() {
-      let inputValue = this.inputValue;
+      console.log(123123);
       let isExist = false;
       this.dynamicTags.forEach(tag => {
-        if (tag.resourceName === inputValue) {
+        if (tag.resourceName === this.formInline.resourceName) {
           isExist = true;
         }
       });
       if (!isExist) {
-        if (inputValue) {
+        if (this.formInline.resourceName && this.formInline.perms) {
           const newTagObj = {
-            resourceName: inputValue,
-            perms: "test"
+            resourceName: this.formInline.resourceName,
+            perms: this.formInline.perms
           };
           this.dynamicTags.push(newTagObj);
+          this.inputVisible = false;
+          this.formInline.resourceName = "";
+          this.formInline.perms = "";
+        } else {
+          this.$message.error({
+            message: "必填字段不能为空"
+          });
         }
-        this.inputVisible = false;
-        this.inputValue = "";
       } else {
         this.$message.error({
           message: "按钮资源名称不能相同"
@@ -275,6 +294,7 @@ export default {
           if (this.dynamicTags && this.dynamicTags.length !== 0) {
             this.ruleForm.buttonResourcesList = [...this.dynamicTags];
           }
+          this.ruleForm.resourceType = 1;
           if (this.ruleForm) {
             this.isSaveBtnLoading = true;
             saveResourceInfo(this.ruleForm).then(res => {
@@ -316,6 +336,7 @@ export default {
       } else {
         this.isCreate = true;
         cloneObj(null, this.ruleForm);
+        this.dynamicTags = []
       }
     },
     doDelResource(resourceId) {
