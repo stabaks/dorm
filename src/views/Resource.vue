@@ -39,8 +39,8 @@
           label-width="150px"
           class="demo-ruleForm"
         >
-          <el-form-item label="资源名称" prop="resourceName">
-            <el-input v-model="ruleForm.resourceName"></el-input>
+          <el-form-item label="资源名称" prop="name">
+            <el-input v-model="ruleForm.name"></el-input>
           </el-form-item>
           <el-form-item label="资源路由名称" prop="routeName">
             <el-input v-model="ruleForm.routeName"></el-input>
@@ -70,12 +70,12 @@
               <el-radio-button label="2">按钮</el-radio-button>
             </el-radio-group>-->
             <el-tag
-              :key="tag.resourceName"
+              :key="tag.name"
               v-for="tag in dynamicTags"
               closable
               :disable-transitions="false"
               @close="handleClose(tag)"
-            >{{tag.resourceName}}</el-tag>
+            >{{tag.name}}</el-tag>
             <!-- <el-input
               class="input-new-tag"
               v-if="inputVisible"
@@ -89,7 +89,7 @@
             <el-popover placement="right" v-model="inputVisible">
               <el-form :label-position="'right'" :model="formInline" class="demo-form-inline">
                 <el-form-item label="按钮名称" style="display: flex;justify-content: flex-end">
-                  <el-input v-model="formInline.resourceName" placeholder="按钮名称"></el-input>
+                  <el-input v-model="formInline.name" placeholder="按钮名称"></el-input>
                 </el-form-item>
                 <el-form-item label="权限" style="display: flex; justify-content: flex-end">
                   <el-input v-model="formInline.perms" placeholder="按钮权限"></el-input>
@@ -145,7 +145,7 @@ export default {
     //这里存放数据
     return {
       formInline: {
-        resourceName: "",
+        name: "",
         perms: ""
       },
       changeIconsVisible: false,
@@ -162,8 +162,8 @@ export default {
       },
       ruleForm: {
         parentId: "",
-        pkResourceId: "",
-        resourceName: "",
+        id: "",
+        name: "",
         routeName: "",
         component: "",
         resourceUrl: "",
@@ -171,7 +171,7 @@ export default {
         resourceType: 0
       },
       rules: {
-        resourceName: [
+        name: [
           { required: true, message: "请输入资源名称", trigger: "blur" },
           { min: 1, max: 20, message: "长度在 1 到 20 个字符", trigger: "blur" }
         ],
@@ -206,10 +206,10 @@ export default {
   methods: {
     handleClose(tag) {
       console.log(tag);
-      if (tag.pkResourceId) {
+      if (tag.id) {
         this.$confirm("确定要删除这个资源吗？")
           .then(_ => {
-            this.doDelResource(tag.pkResourceId);
+            this.doDelResource(tag.id);
           })
           .catch(_ => {});
       } else {
@@ -221,19 +221,19 @@ export default {
       console.log(123123);
       let isExist = false;
       this.dynamicTags.forEach(tag => {
-        if (tag.resourceName === this.formInline.resourceName) {
+        if (tag.name === this.formInline.name) {
           isExist = true;
         }
       });
       if (!isExist) {
-        if (this.formInline.resourceName && this.formInline.perms) {
+        if (this.formInline.name && this.formInline.perms) {
           const newTagObj = {
-            resourceName: this.formInline.resourceName,
+            name: this.formInline.name,
             perms: this.formInline.perms
           };
           this.dynamicTags.push(newTagObj);
           this.inputVisible = false;
-          this.formInline.resourceName = "";
+          this.formInline.name = "";
           this.formInline.perms = "";
         } else {
           this.$message.error({
@@ -257,11 +257,12 @@ export default {
       } else {
         this.isCreate = false;
         this.isParent = null;
+        this.ruleForm.id = data.attribute.id
         cloneObj(data.attribute, this.ruleForm);
         this.currentClickResource = data;
       }
       // 将数据渲染进表单clg
-      getBtnsResource(data.attribute.pkResourceId).then(res => {
+      getBtnsResource(data.attribute.id).then(res => {
         console.log(res);
         if (res["code"] === "1") {
           this.dynamicTags = [...res.data];
@@ -288,7 +289,7 @@ export default {
             if (this.isParent) {
               this.ruleForm.parentId = this.currentClickResource.attribute.parentId;
             } else {
-              this.ruleForm.parentId = this.currentClickResource.attribute.pkResourceId;
+              this.ruleForm.parentId = this.currentClickResource.attribute.id;
             }
           }
           if (this.dynamicTags && this.dynamicTags.length !== 0) {
@@ -300,12 +301,13 @@ export default {
             saveResourceInfo(this.ruleForm).then(res => {
               if (res["code"] === "1") {
                 this.$message({
-                  message: "创建成功！",
+                  message: res['msg'],
                   type: "success"
                 });
                 this.isSaveBtnLoading = false;
                 this.initTree();
               } else {
+                this.isSaveBtnLoading = false;
                 this.$message.error({
                   message: res["msg"]
                 });
@@ -363,7 +365,7 @@ export default {
         this.$confirm("确定要删除这个资源吗？")
           .then(_ => {
             this.doDelResource(
-              this.currentClickResource.attribute.pkResourceId
+              this.currentClickResource.attribute.id
             );
           })
           .catch(_ => {});

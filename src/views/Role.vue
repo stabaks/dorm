@@ -2,7 +2,7 @@
 <template>
   <div class="tableWrapper">
     <el-table :data="tableData" style="width: 100%" v-loading="tableLoading">
-      <el-table-column label="角色名" prop="roleName" width="120" fixed></el-table-column>
+      <el-table-column label="角色名" prop="name" width="120" fixed></el-table-column>
       <el-table-column label="状态" prop="status" width="100">
         <template slot-scope="scope">{{scope.row.status | status}}</template>
       </el-table-column>
@@ -10,7 +10,7 @@
       <el-table-column label="创建操作人" prop="createUserName"></el-table-column>
       <el-table-column label="修改时间" prop="lastModifyTime"></el-table-column>
       <el-table-column label="修改操作人" prop="lastModifyUserName"></el-table-column>
-      <el-table-column label="描述" prop="roleDesc"></el-table-column>
+      <el-table-column label="描述" prop="description"></el-table-column>
       <el-table-column align="right" width="260" fixed="right">
         <template slot="header" slot-scope="scope">
           <el-input
@@ -49,16 +49,16 @@
     <!--  对话框 -->
     <el-dialog :title="isNewUser === false? '更改角色信息': '新建角色' " :visible.sync="roleFormVisible">
       <el-form :model="form" ref="roleForm">
-        <el-form-item label="角色名" label-width="120px" prop="roleName">
+        <el-form-item label="角色名" label-width="120px" prop="name">
           <el-input
-            v-model="form.roleName"
+            v-model="form.name"
             autocomplete="off"
-            placeholder="rolename"
+            placeholder="name"
             maxlength="20"
           ></el-input>
         </el-form-item>
-        <el-form-item label="角色描述" label-width="120px" prop="roleDesc">
-          <el-input v-model="form.roleDesc" autocomplete="off" placeholder="roleDesc" maxlength="11"></el-input>
+        <el-form-item label="角色描述" label-width="120px" prop="description">
+          <el-input v-model="form.description" autocomplete="off" placeholder="description" maxlength="11"></el-input>
         </el-form-item>
         
       </el-form>
@@ -131,14 +131,14 @@ export default {
         pageNum: 1,
         pageSize: 10,
         pkRoleId: "",
-        roleDesc: "",
-        roleName: "",
+        description: "",
+        name: "",
         startTime: "",
         // status: 0
       },
       form: {
-        roleName: "",
-        roleDesc: "",
+        name: "",
+        description: "",
         pkRoleId: ""
       },
       roleFormVisible: false,
@@ -267,14 +267,14 @@ export default {
       console.log(data);
     },
     getResourceData(row) {
-      this.currentSaveRoleId = row.pkRoleId;
+      this.currentSaveRoleId = row.id;
       row.getResourceLoading = true;
       this.tableData = [...this.tableData]; //更新按钮刷新状态值
-      getRoleResource(row.pkRoleId).then(res => {
+      getRoleResource(row.id).then(res => {
         if (res.code === "1") {
           if (res.data) {
             this.resourceTreeData = [...res.data];
-            this.reCurrenceResouece(this.resourceTreeData);
+            this.reCurrenceResouece(this.resourceTreeData); // 找出已勾选资源
             this.isShowDrawer = true;
             row.getResourceLoading = false;
             this.tableData = [...this.tableData];
@@ -282,7 +282,7 @@ export default {
         }
       });
     },
-    reCurrenceResouece(resourceArr) {
+    reCurrenceResouece(resourceArr) { // 递归找出已勾选资源
       if (resourceArr && resourceArr.length !== 0) {
         resourceArr.forEach(item => {
           if (item.checked) {
