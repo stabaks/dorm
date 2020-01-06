@@ -28,3 +28,5 @@ export const getAllResource = () => get(`${apiUrl}/waken/dorm/resources/tree`);
 export const saveResourceInfo = p => post(`${apiUrl}/waken/dorm/resources/save`, p);
 export const deleteResource = p => $delete(`${apiUrl}/waken/dorm/resources/delete`, p);
 export const getBtnsResource = p => get(`${apiUrl}/waken/dorm/buttons/${p}`);
+// 基本信息管理
+export const saveBuildingList = p => post(`${apiUrl}/waken/dorm/building/page`, p);

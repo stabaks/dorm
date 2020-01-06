@@ -12,6 +12,7 @@ import { menusToRoutes } from "./common/utils"
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css' //这个样式必须引入
 import './common/css/style.css'
+import './assets/style.scss'
 // import { GetUrlRelativePath } from './common/utils'
 // import Message from '../node_modules/element-ui/packages/message/index'
 Vue.config.productionTip = false

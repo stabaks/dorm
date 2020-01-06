@@ -1,6 +1,6 @@
 <!--  -->
 <template>
-  <div class="tableWrapper">
+  <div class="total-wrapper">
     <el-table :data="tableData" style="width: 100%" v-loading="tableLoading">
       <el-table-column label="角色名" prop="name" width="120" fixed></el-table-column>
       <el-table-column label="状态" prop="status" width="100">
@@ -87,6 +87,7 @@
             node-key="id"
             :props="defaultProps"
             :default-checked-keys="currentUserResources"
+            check-strictly
           ></el-tree>
         </div>
 
@@ -302,6 +303,7 @@ export default {
       resourceObjList.forEach(resourceObj => {
         resourceIdList.push(resourceObj.id);
       })
+      console.log(resourceIdList);
       const param = {
         resourceIds: resourceIdList,
         roleId: this.currentSaveRoleId
@@ -324,16 +326,6 @@ export default {
     }
   },
   filters: {
-    gender: function(value) {
-      switch (value) {
-        case 0:
-          return "女";
-          break;
-        case 1:
-          return "男";
-          break;
-      }
-    },
     status: function(value) {
       switch (value) {
         case 1:
@@ -351,23 +343,8 @@ export default {
 };
 </script>
 <style lang='scss' scoped>
-.tableWrapper {
-  padding: 14px;
-  background: white;
-  border-radius: 17px;
-  transition: all 0.5s;
-  box-shadow: 6px 6px 10px #333333;
-  &:hover{
-    box-shadow: 1px 42px 25px #333333;
-  }
-}
-.pagination {
-  padding-top: 10px;
-  .el-pagination {
-    display: flex;
-    justify-content: flex-end;
-  }
-}
+
+
 .el-select {
   width: 100%;
 }

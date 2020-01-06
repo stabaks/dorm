@@ -1,0 +1,17 @@
+.total-wrapper{ // 公共最外层样式
+    padding: 14px;
+    background: white;
+    border-radius: 17px;
+    -webkit-transition: all 0.5s;
+    transition: all 0.5s;
+    -webkit-box-shadow: 6px 6px 10px #333333;
+    box-shadow: 6px 6px 25px #333333;
+}
+.pagination {  // 分页样式
+    padding-top: 10px;
+    .el-pagination {
+      display: flex;
+      justify-content: flex-end;
+    }
+  }
+  

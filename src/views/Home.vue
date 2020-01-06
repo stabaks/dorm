@@ -212,6 +212,7 @@ export default {
 </script>
 <style lang='scss' scoped>
 //@import url(); 引入公共css类
+// @import url('../assets/style.scss');
 .el-container {
   height: 100%;
 }
